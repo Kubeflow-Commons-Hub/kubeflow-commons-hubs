@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-typecheck-build:
+    name: Lint, Typecheck & Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('src/**') }}
+          restore-keys: nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: "https://placeholder.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "placeholder"
+          NEXT_PUBLIC_R2_PUBLIC_URL: "https://placeholder.r2.dev"
+          NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
