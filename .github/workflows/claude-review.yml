@@ -1,0 +1,254 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  pull_request_review_comment:
+    types: [created]
+  issue_comment:
+    types: [created]
+
+concurrency:
+  group: claude-review-${{ github.event_name }}-${{ github.event.pull_request.number || github.event.issue.number || github.run_id }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  id-token: write
+
+jobs:
+  claude-review:
+    name: Claude Review
+    timeout-minutes: 20
+    if: |
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.head.repo.full_name == github.repository &&
+       github.event.pull_request.draft != true &&
+       github.actor != 'github-actions[bot]') ||
+      (github.event_name == 'pull_request_review_comment' &&
+       contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       contains(github.event.comment.body, '@claude') &&
+       github.event.comment.author_association != 'NONE' &&
+       github.event.comment.author_association != 'FIRST_TIMER' &&
+       github.event.comment.author_association != 'FIRST_TIME_CONTRIBUTOR')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for reviewable changes
+        id: check-paths
+        run: |
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "needs_review=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          CHANGED_FILES=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files \
+            --paginate --jq '.[].filename')
+
+          needs_review=false
+          while IFS= read -r file; do
+            case "$file" in
+              docs/*) ;;
+              *.md) ;;
+              package-lock.json) ;;
+              *)
+                needs_review=true
+                break
+                ;;
+            esac
+          done <<< "$CHANGED_FILES"
+
+          echo "needs_review=$needs_review" >> "$GITHUB_OUTPUT"
+          if [ "$needs_review" = "false" ]; then
+            echo "All changed files match ignore patterns — skipping review"
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout code
+        if: steps.check-paths.outputs.needs_review == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        if: steps.check-paths.outputs.needs_review == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        if: steps.check-paths.outputs.needs_review == 'true'
+        run: npm ci
+
+      - name: Configure git identity
+        if: steps.check-paths.outputs.needs_review == 'true'
+        run: |
+          git config user.name "claude-code-review[bot]"
+          git config user.email "claude-code-review[bot]@users.noreply.github.com"
+
+      - name: Authenticate to Google Cloud
+        if: steps.check-paths.outputs.needs_review == 'true'
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Claude Code Review
+        if: steps.check-paths.outputs.needs_review == 'true'
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        continue-on-error: true
+        with:
+          use_vertex: "true"
+          track_progress: true
+          display_report: "true"
+          include_fix_links: "true"
+          claude_args: '--model claude-opus-4-6 --max-turns 50 --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr checkout:*),Bash(git add:*),Bash(git commit:*),Bash(git push origin:*),Bash(git diff:*),Bash(git status:*),Bash(npm run build:*),Bash(npm run lint:*),Bash(npx tsc --noEmit:*),Read,Glob,Grep,Edit,Write"'
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number || github.event.issue.number }}
+
+            You are reviewing a pull request for **Kubeflow Common Hubs**, a Next.js 15
+            community platform (TypeScript, Tailwind CSS v4, Drizzle ORM, Supabase).
+
+            Your job is to:
+
+            1. **Determine PR context**:
+               - If no PR number is available, post a comment and exit.
+               - Run `gh pr checkout <PR_NUMBER>` to switch to the PR branch.
+
+            2. **Review** the PR diff. Focus on:
+               - Bugs and logic errors
+               - Security issues (XSS, injection, exposed secrets)
+               - Accessibility (ARIA, keyboard nav, contrast)
+               - Performance (unnecessary re-renders, missing cleanup, bundle size)
+               - TypeScript strictness (no `any`, proper types)
+               - Tailwind: use design tokens from globals.css, not hardcoded values
+
+            3. **Fix** any issues you find by editing files directly:
+               - After making fixes, validate: `npx tsc --noEmit && npm run lint && npm run build`
+               - Only commit and push if validation passes:
+                 ```
+                 git add -u
+                 git diff --cached --quiet || git commit -m "fix: Claude code review autofix
+
+                 <concise summary of changes>"
+                 git push origin HEAD
+                 ```
+
+            4. **Report** findings:
+               - Use inline comments for specific issues
+               - Post a summary PR comment with issues found/fixed
+               - Note that CI will NOT auto-run on autofix commits
+
+            5. **Set verdict**:
+               ```
+               echo "PASS" > .claude-review-result    # No blocking issues
+               echo "FAIL" > .claude-review-result    # Critical unfixed issues
+               ```
+               Use FAIL only for security vulnerabilities, clear runtime bugs, or
+               breaking changes that you could NOT fix.
+
+            **Rules:**
+            - Never force push. Only `git push origin HEAD`.
+            - Use `git add -u` not `git add -A`.
+            - Be concise. Focus on actionable feedback.
+            - Only fix things you are confident about.
+        env:
+          ANTHROPIC_VERTEX_PROJECT_ID: "itpc-gcp-ai-eng-claude"
+          CLOUD_ML_REGION: "us-east5"
+
+      - name: Check review result
+        if: steps.check-paths.outputs.needs_review == 'true'
+        run: |
+          if [ "${{ steps.claude-review.outcome }}" = "failure" ]; then
+            echo "::warning::Claude review action failed — not blocking PR"
+            exit 0
+          fi
+
+          if [ -f .claude-review-result ]; then
+            RESULT=$(tr -d '[:space:]' < .claude-review-result)
+            if [ "$RESULT" = "FAIL" ]; then
+              echo "::error::Claude review found critical issues that must be addressed"
+              exit 1
+            fi
+          fi
+
+          echo "Claude review passed"
+
+  claude-review-fork:
+    name: Claude Review (Fork)
+    timeout-minutes: 20
+    if: |
+      github.event_name == 'pull_request_target' &&
+      github.event.pull_request.head.repo.full_name != github.repository &&
+      github.event.pull_request.draft != true &&
+      github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for reviewable changes
+        id: check-paths
+        run: |
+          CHANGED_FILES=$(gh api repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files \
+            --paginate --jq '.[].filename')
+
+          needs_review=false
+          while IFS= read -r file; do
+            case "$file" in
+              docs/*) ;;
+              *.md) ;;
+              package-lock.json) ;;
+              *)
+                needs_review=true
+                break
+                ;;
+            esac
+          done <<< "$CHANGED_FILES"
+
+          echo "needs_review=$needs_review" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout base branch
+        if: steps.check-paths.outputs.needs_review == 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+
+      - name: Authenticate to Google Cloud
+        if: steps.check-paths.outputs.needs_review == 'true'
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Claude Code Review (Read-Only)
+        if: steps.check-paths.outputs.needs_review == 'true'
+        uses: anthropics/claude-code-action@v1
+        continue-on-error: true
+        with:
+          use_vertex: "true"
+          track_progress: true
+          display_report: "true"
+          include_fix_links: "true"
+          claude_args: '--model claude-opus-4-6 --max-turns 25 --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*),Read,Glob,Grep"'
+          prompt: |
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
+
+            You are reviewing a **fork pull request** for Kubeflow Common Hubs.
+            This is a READ-ONLY review. NEVER execute any code from the PR.
+
+            1. Run `gh pr diff ${{ github.event.pull_request.number }}` to get the diff.
+            2. Review for bugs, security, accessibility, performance, and TypeScript issues.
+            3. Use inline comments for specific issues.
+            4. Post a summary PR comment. Note this was a read-only review (fork PR).
+
+            **Rules:** Do NOT run any commands that execute PR code. Do NOT checkout the PR branch.
+        env:
+          ANTHROPIC_VERTEX_PROJECT_ID: "itpc-gcp-ai-eng-claude"
+          CLOUD_ML_REGION: "us-east5"
