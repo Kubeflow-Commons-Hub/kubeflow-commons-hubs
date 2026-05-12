@@ -193,46 +193,34 @@ export async function syncRepoContributions(userId: string, username: string) {
     repoStats[repo].reviewsDone++;
   }
 
-  for (const [repoFullName, stats] of Object.entries(repoStats)) {
-    const [existing] = await db
-      .select()
-      .from(githubContributions)
+  const existingContribs = await db
+    .select({ repoFullName: githubContributions.repoFullName })
+    .from(githubContributions)
+    .where(eq(githubContributions.userId, userId));
+
+  const existingRepos = new Set(existingContribs.map((c) => c.repoFullName));
+
+  const toInsert = Object.entries(repoStats)
+    .filter(([repo]) => !existingRepos.has(repo))
+    .map(([repoFullName, stats]) => ({ userId, repoFullName, ...stats }));
+
+  const toUpdate = Object.entries(repoStats)
+    .filter(([repo]) => existingRepos.has(repo));
+
+  if (toInsert.length > 0) {
+    await db.insert(githubContributions).values(toInsert);
+  }
+
+  for (const [repoFullName, stats] of toUpdate) {
+    await db
+      .update(githubContributions)
+      .set({ ...stats, lastSynced: new Date() })
       .where(
         and(
           eq(githubContributions.userId, userId),
           eq(githubContributions.repoFullName, repoFullName)
         )
-      )
-      .limit(1);
-
-    if (existing) {
-      await db
-        .update(githubContributions)
-        .set({
-          prsMerged: stats.prsMerged,
-          prsOpened: stats.prsOpened,
-          issuesOpened: stats.issuesOpened,
-          commits: stats.commits,
-          reviewsDone: stats.reviewsDone,
-          lastSynced: new Date(),
-        })
-        .where(
-          and(
-            eq(githubContributions.userId, userId),
-            eq(githubContributions.repoFullName, repoFullName)
-          )
-        );
-    } else {
-      await db.insert(githubContributions).values({
-        userId,
-        repoFullName,
-        prsMerged: stats.prsMerged,
-        prsOpened: stats.prsOpened,
-        issuesOpened: stats.issuesOpened,
-        commits: stats.commits,
-        reviewsDone: stats.reviewsDone,
-      });
-    }
+      );
   }
 }
 

@@ -8,7 +8,9 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const rawType = searchParams.get("type");
-  const type = VALID_OTP_TYPES.includes(rawType as EmailOtpType) ? (rawType as EmailOtpType) : null;
+  const type = VALID_OTP_TYPES.includes(rawType as EmailOtpType)
+    ? (rawType as EmailOtpType)
+    : null;
 
   if (token_hash && type) {
     const supabase = await createClient();
