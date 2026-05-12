@@ -1,5 +1,6 @@
 "use server";
 
+import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { profiles } from "@/db/schema";
@@ -12,19 +13,26 @@ type ActionResult = {
   success?: boolean;
 };
 
+const emailPreferencesSchema = z.object({
+  badgeEarned: z.boolean(),
+  cfpStatusChange: z.boolean(),
+  eventReminders: z.boolean(),
+  weeklyDigest: z.boolean(),
+});
+
 export async function updateEmailPreferences(
-  preferences: {
-    badgeEarned: boolean;
-    cfpStatusChange: boolean;
-    eventReminders: boolean;
-    weeklyDigest: boolean;
-  }
+  preferences: z.infer<typeof emailPreferencesSchema>
 ): Promise<ActionResult> {
   const user = await requireAuth();
 
+  const parsed = emailPreferencesSchema.safeParse(preferences);
+  if (!parsed.success) {
+    return { error: "Invalid preferences" };
+  }
+
   await db
     .update(profiles)
-    .set({ emailPreferences: preferences })
+    .set({ emailPreferences: parsed.data })
     .where(eq(profiles.userId, user.id));
 
   return { success: true };

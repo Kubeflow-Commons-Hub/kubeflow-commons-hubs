@@ -47,6 +47,8 @@ function UserMenu({ avatarUrl, name, username }: { avatarUrl?: string | null; na
         onClick={() => setOpen(!open)}
         className="size-8 rounded-full bg-gradient-to-br from-[var(--kf-blue)] to-[var(--kf-teal)] flex items-center justify-center text-white text-xs font-bold overflow-hidden ring-2 ring-transparent hover:ring-[var(--kf-blue)]/30 transition-all"
         aria-label="User menu"
+        aria-haspopup="true"
+        aria-expanded={open}
       >
         {avatarUrl ? (
           <Image src={avatarUrl} alt="" width={32} height={32} className="size-full object-cover" />
