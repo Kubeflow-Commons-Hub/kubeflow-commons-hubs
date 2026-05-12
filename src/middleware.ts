@@ -52,8 +52,8 @@ function isAuthStrictRoute(pathname: string) {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Rate limiting on auth routes only (brute-force protection)
-  if (isAuthStrictRoute(pathname)) {
+  // Rate limiting on auth form submissions only (brute-force protection)
+  if (request.method === "POST" && isAuthStrictRoute(pathname)) {
     const redis = getRedisClient();
     if (redis) {
       try {
