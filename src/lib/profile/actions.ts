@@ -85,10 +85,18 @@ export async function updateOnboardingStep2(formData: FormData): Promise<ActionR
       return { error: "Failed to verify GitHub username. Please try again." };
     }
 
-    await db
-      .update(profiles)
-      .set({ githubUsername: parsed.data.githubUsername })
-      .where(eq(profiles.userId, user.id));
+    try {
+      await db
+        .update(profiles)
+        .set({ githubUsername: parsed.data.githubUsername })
+        .where(eq(profiles.userId, user.id));
+    } catch (err: unknown) {
+      const errStr = String(err);
+      if (errStr.includes("unique") || errStr.includes("duplicate") || errStr.includes("github_username")) {
+        return { error: "This GitHub username is already linked to another account." };
+      }
+      return { error: "Failed to save GitHub username. Please try again." };
+    }
   }
 
   return { success: true };
