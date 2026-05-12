@@ -60,6 +60,29 @@
 
 ---
 
+## Deployment + Infrastructure -- COMPLETE
+
+### Done
+- [x] GitHub repo live at https://github.com/dpanshug/kubeflow-common-hubs
+- [x] Branch protection on `main` (require PR, 1 approval, CI must pass, no force push)
+- [x] CI/CD pipelines (CI, Claude Review, Claude Issues, Dependabot)
+- [x] Vercel connected to GitHub repo with auto-deploy on push to `main`
+- [x] Supabase project created (Auth, Postgres, Realtime configured)
+- [x] Database migrations run (auth triggers, JWT hook, RLS policies)
+- [x] Google and GitHub OAuth providers enabled in Supabase Auth
+- [x] All env vars added to Vercel production
+- [x] Upstash Redis configured for rate limiting
+
+### TODO
+- [ ] Apply to Vercel OSS Program (https://vercel.com/open-source-program) for $3,600 credits
+- [ ] Purchase domain (e.g., `kubeflowcommonhubs.in` or `kfhubs.dev`)
+- [ ] Add custom domain in Vercel project settings
+- [ ] Cloudflare R2 bucket (for avatar uploads -- optional)
+- [ ] Resend (email -- Phase 3 prerequisite)
+- [ ] Sentry (error tracking -- before launch)
+
+---
+
 ## Phase 2: Auth + Profiles + GitHub Integration -- COMPLETE
 
 ### Authentication
