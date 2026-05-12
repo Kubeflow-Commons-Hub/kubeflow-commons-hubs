@@ -104,11 +104,20 @@ function EmailPreferencesSection({
       setSaving(true);
       setSaved(false);
 
-      updateEmailPreferences(updated).then(() => {
-        setSaving(false);
-        setSaved(true);
-        setTimeout(() => setSaved(false), 2000);
-      });
+      updateEmailPreferences(updated)
+        .then((result) => {
+          setSaving(false);
+          if (result.error) {
+            setPrefs(prefs);
+          } else {
+            setSaved(true);
+            setTimeout(() => setSaved(false), 2000);
+          }
+        })
+        .catch(() => {
+          setSaving(false);
+          setPrefs(prefs);
+        });
     },
     [prefs]
   );

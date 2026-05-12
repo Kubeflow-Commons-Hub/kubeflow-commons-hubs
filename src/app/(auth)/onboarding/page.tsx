@@ -15,12 +15,16 @@ export default async function OnboardingPage() {
     redirect("/login");
   }
 
-  // Get existing profile data (may already have partial data)
   const [profile] = await db
     .select()
     .from(profiles)
     .where(eq(profiles.userId, user.id))
     .limit(1);
+
+  if (profile?.onboardingCompleted) {
+    const slug = profile.githubUsername || user.id;
+    redirect(`/members/${slug}`);
+  }
 
   // Pre-fill from auth metadata + existing profile
   const initialData = {
