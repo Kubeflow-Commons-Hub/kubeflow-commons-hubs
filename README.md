@@ -1,4 +1,4 @@
-# Kubeflow Common Hubs
+# Kubeflow Commons Hub
 
 The one-stop community platform for Kubeflow in India. Learn, contribute, and grow with the community.
 
