@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import {
@@ -11,6 +12,9 @@ import {
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/guards";
 import { getSubmissionDetail } from "@/lib/cfp/actions";
+
+const getCachedUser = cache(() => getCurrentUser());
+const getCachedSubmission = cache((id: string) => getSubmissionDetail(id));
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,10 +30,10 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const currentUser = await getCurrentUser();
+  const currentUser = await getCachedUser();
   if (!currentUser) return { title: "Submission" };
 
-  const submission = await getSubmissionDetail(id);
+  const submission = await getCachedSubmission(id);
   return {
     title: submission ? submission.title : "Submission Not Found",
   };
@@ -119,13 +123,13 @@ function StatusPipeline({ currentStatus }: { currentStatus: string }) {
 }
 
 export default async function SubmissionDetailPage({ params }: PageProps) {
-  const currentUser = await getCurrentUser();
+  const currentUser = await getCachedUser();
   if (!currentUser) {
     redirect("/login?next=/submissions");
   }
 
   const { id } = await params;
-  const submission = await getSubmissionDetail(id);
+  const submission = await getCachedSubmission(id);
 
   if (!submission) {
     notFound();

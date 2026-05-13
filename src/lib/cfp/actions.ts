@@ -360,6 +360,7 @@ export async function submitReview(
       },
     });
 
+  // Raw SQL for atomic avg — coupled to Postgres table/column names "cfp_reviews" and "submission_id"
   await db
     .update(cfpSubmissions)
     .set({
