@@ -22,8 +22,9 @@ function slugify(text: string): string {
 async function ensureUniqueSlug(base: string, excludeId?: string): Promise<string> {
   let slug = base;
   let attempt = 0;
+  const MAX_ATTEMPTS = 100;
 
-  while (true) {
+  while (attempt < MAX_ATTEMPTS) {
     const conditions = [eq(events.slug, slug)];
     if (excludeId) {
       conditions.push(sql`${events.id} != ${excludeId}`);
@@ -38,6 +39,7 @@ async function ensureUniqueSlug(base: string, excludeId?: string): Promise<strin
     attempt++;
     slug = `${base}-${attempt + 1}`;
   }
+  throw new Error("Could not generate a unique slug");
 }
 
 interface ListEventsParams {

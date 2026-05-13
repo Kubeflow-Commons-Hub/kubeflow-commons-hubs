@@ -4,8 +4,10 @@ import { cache } from "react";
 import { db } from "@/db";
 import { users, events, badges, newsPosts, auditLog, cfpSubmissions } from "@/db/schema";
 import { eq, isNull, count, desc, sql } from "drizzle-orm";
+import { requireRole } from "@/lib/auth/guards";
 
 export const getDashboardMetrics = cache(async () => {
+  await requireRole("moderator");
   const [
     [userCount],
     [eventCount],
@@ -36,6 +38,7 @@ export const getDashboardMetrics = cache(async () => {
 });
 
 export const getRecentActivity = cache(async (limit = 15) => {
+  await requireRole("moderator");
   const entries = await db
     .select({
       id: auditLog.id,
@@ -55,6 +58,7 @@ export const getRecentActivity = cache(async (limit = 15) => {
 });
 
 export const getSignupTrend = cache(async () => {
+  await requireRole("moderator");
   const result = await db
     .select({
       date: sql<string>`date_trunc('day', ${users.createdAt})::date::text`,

@@ -22,8 +22,9 @@ function slugify(text: string): string {
 async function ensureUniqueSlug(base: string, excludeId?: string): Promise<string> {
   let slug = base;
   let attempt = 0;
+  const MAX_ATTEMPTS = 100;
 
-  while (true) {
+  while (attempt < MAX_ATTEMPTS) {
     const conditions = [eq(newsPosts.slug, slug)];
     if (excludeId) {
       conditions.push(sql`${newsPosts.id} != ${excludeId}`);
@@ -38,6 +39,7 @@ async function ensureUniqueSlug(base: string, excludeId?: string): Promise<strin
     attempt++;
     slug = `${base}-${attempt + 1}`;
   }
+  throw new Error("Could not generate a unique slug");
 }
 
 interface ListNewsParams {
@@ -157,11 +159,11 @@ export async function updateNews(id: string, input: CreateNewsInput) {
   const validInput = createNewsSchema.safeParse(input);
   if (!validInput.success) return { error: validInput.error.issues[0]?.message ?? "Invalid input" };
 
-  const existing = await getNewsById(id);
+  const existing = await getNewsById(parsedId.data);
   if (!existing) return { error: "News post not found" };
 
   const slug = input.slug && input.slug !== existing.slug
-    ? await ensureUniqueSlug(input.slug, id)
+    ? await ensureUniqueSlug(input.slug, parsedId.data)
     : existing.slug;
 
   const isNewlyPublished = input.status === "published" && existing.status !== "published";
@@ -179,13 +181,13 @@ export async function updateNews(id: string, input: CreateNewsInput) {
       publishedAt: isNewlyPublished ? new Date() : existing.publishedAt,
       updatedAt: new Date(),
     })
-    .where(eq(newsPosts.id, id));
+    .where(eq(newsPosts.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "news.updated",
     targetType: "news",
-    targetId: id,
+    targetId: parsedId.data,
     newValues: { title: input.title },
   });
 

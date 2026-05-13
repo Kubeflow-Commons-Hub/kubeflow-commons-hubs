@@ -2,7 +2,7 @@
 
 import { db } from "@/db";
 import { auditLog, users } from "@/db/schema";
-import { eq, and, desc, ilike, gte, lte, count, sql } from "drizzle-orm";
+import { eq, and, desc, ilike, gte, lte, count, or, inArray } from "drizzle-orm";
 import { requireRole } from "@/lib/auth/guards";
 
 interface QueryAuditLogParams {
@@ -43,9 +43,15 @@ export async function queryAuditLog({
 
   if (safeActorSearch) {
     conditions.push(
-      sql`${auditLog.actorId} IN (
-        SELECT id FROM users WHERE name ILIKE ${'%' + safeActorSearch + '%'} OR email ILIKE ${'%' + safeActorSearch + '%'}
-      )`
+      inArray(
+        auditLog.actorId,
+        db.select({ id: users.id }).from(users).where(
+          or(
+            ilike(users.name, `%${safeActorSearch}%`),
+            ilike(users.email, `%${safeActorSearch}%`)
+          )
+        )
+      )
     );
   }
 

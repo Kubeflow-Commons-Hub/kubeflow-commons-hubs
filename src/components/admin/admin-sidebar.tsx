@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -94,17 +94,33 @@ function NavLink({
   );
 }
 
+const SIDEBAR_KEY = "admin-sidebar-collapsed";
+const SIDEBAR_EVENT = "admin-sidebar-toggle";
+
+function subscribeSidebar(callback: () => void) {
+  window.addEventListener(SIDEBAR_EVENT, callback);
+  return () => window.removeEventListener(SIDEBAR_EVENT, callback);
+}
+
+function getCollapsedSnapshot() {
+  return localStorage.getItem(SIDEBAR_KEY) === "true";
+}
+
+function getCollapsedServerSnapshot() {
+  return false;
+}
+
 export function AdminSidebar() {
-  const [collapsed, setCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem("admin-sidebar-collapsed") === "true";
-  });
+  const collapsed = useSyncExternalStore(
+    subscribeSidebar,
+    getCollapsedSnapshot,
+    getCollapsedServerSnapshot,
+  );
   const [mobileOpen, setMobileOpen] = useState(false);
 
   function toggleCollapse() {
-    const next = !collapsed;
-    setCollapsed(next);
-    localStorage.setItem("admin-sidebar-collapsed", String(next));
+    localStorage.setItem(SIDEBAR_KEY, String(!collapsed));
+    window.dispatchEvent(new Event(SIDEBAR_EVENT));
   }
 
   const sidebarContent = (

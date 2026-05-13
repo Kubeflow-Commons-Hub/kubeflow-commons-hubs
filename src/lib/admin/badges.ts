@@ -218,6 +218,9 @@ export async function awardBadge(badgeId: string, userId: string, reason?: strin
 export async function getBadgeAwardHistory(badgeId: string) {
   await requireRole("admin");
 
+  const parsed = uuidSchema.safeParse(badgeId);
+  if (!parsed.success) return [];
+
   const rows = await db
     .select({
       id: userBadges.id,
@@ -228,7 +231,7 @@ export async function getBadgeAwardHistory(badgeId: string) {
     })
     .from(userBadges)
     .innerJoin(users, eq(userBadges.userId, users.id))
-    .where(eq(userBadges.badgeId, badgeId))
+    .where(eq(userBadges.badgeId, parsed.data))
     .orderBy(desc(userBadges.awardedAt));
 
   return rows;
