@@ -12,9 +12,6 @@ import {
 } from "lucide-react";
 import { getCurrentUser } from "@/lib/auth/guards";
 import { getSubmissionDetail } from "@/lib/cfp/actions";
-
-const getCachedUser = cache(() => getCurrentUser());
-const getCachedSubmission = cache((id: string) => getSubmissionDetail(id));
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +20,9 @@ import {
 } from "@/lib/cfp/utils";
 import { CFP_TALK_TYPES } from "@/lib/constants";
 import type { Metadata } from "next";
+
+const getCachedUser = cache(() => getCurrentUser());
+const getCachedSubmission = cache((id: string) => getSubmissionDetail(id));
 
 interface PageProps {
   params: Promise<{ id: string }>;

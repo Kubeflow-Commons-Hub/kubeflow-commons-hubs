@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, Star } from "lucide-react";
@@ -15,6 +16,11 @@ import { ReviewForm } from "./review-form";
 import { StatusControls } from "./status-controls";
 import type { Metadata } from "next";
 
+const getCachedUser = cache(() => getCurrentUser());
+const getCachedReview = cache((id: string) =>
+  getSubmissionForReview(id).catch(() => null)
+);
+
 interface PageProps {
   params: Promise<{ id: string; subId: string }>;
 }
@@ -23,14 +29,14 @@ export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
   const { subId } = await params;
-  const data = await getSubmissionForReview(subId).catch(() => null);
+  const data = await getCachedReview(subId);
   return {
     title: data ? `Review: ${data.submission.title}` : "Review Submission",
   };
 }
 
 export default async function AdminReviewPage({ params }: PageProps) {
-  const currentUser = await getCurrentUser();
+  const currentUser = await getCachedUser();
   if (!currentUser) redirect("/login");
 
   const role = currentUser.user.role;
@@ -39,7 +45,7 @@ export default async function AdminReviewPage({ params }: PageProps) {
   }
 
   const { id: cfpId, subId } = await params;
-  const data = await getSubmissionForReview(subId);
+  const data = await getCachedReview(subId);
   if (!data) notFound();
 
   const { submission, reviews } = data;

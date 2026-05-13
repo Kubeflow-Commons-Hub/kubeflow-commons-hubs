@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight } from "lucide-react";
@@ -12,6 +13,8 @@ import {
 import { CFP_TALK_TYPES } from "@/lib/constants";
 import type { Metadata } from "next";
 
+const getCachedCfp = cache((id: string) => getCfpById(id));
+
 interface PageProps {
   params: Promise<{ id: string }>;
   searchParams: Promise<{ status?: string }>;
@@ -19,7 +22,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  const cfp = await getCfpById(id);
+  const cfp = await getCachedCfp(id);
   return {
     title: cfp ? `Review: ${cfp.title}` : "Review Submissions",
   };
@@ -50,7 +53,7 @@ export default async function AdminSubmissionsPage({
   const { id } = await params;
   const { status: statusFilter } = await searchParams;
 
-  const cfp = await getCfpById(id);
+  const cfp = await getCachedCfp(id);
   if (!cfp) notFound();
 
   const { items } = await getCfpSubmissions(id, statusFilter || "all");
