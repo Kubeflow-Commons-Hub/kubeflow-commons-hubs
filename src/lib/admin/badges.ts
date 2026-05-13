@@ -28,6 +28,10 @@ export async function listBadgesAdmin({
 }: ListBadgesParams = {}) {
   await requireRole("admin");
 
+  const safePage = Math.max(1, Math.floor(page));
+  const safePageSize = Math.min(50, Math.max(1, Math.floor(pageSize)));
+  const safeSearch = search?.slice(0, 200);
+
   const conditions = [];
 
   if (category && ["contribution", "community", "engagement", "special"].includes(category)) {
@@ -38,8 +42,8 @@ export async function listBadgesAdmin({
     conditions.push(eq(badges.tier, tier as typeof badges.tier.enumValues[number]));
   }
 
-  if (search) {
-    conditions.push(ilike(badges.name, `%${search}%`));
+  if (safeSearch) {
+    conditions.push(ilike(badges.name, `%${safeSearch}%`));
   }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -72,8 +76,8 @@ export async function listBadgesAdmin({
       .leftJoin(awardCount, eq(badges.id, awardCount.badgeId))
       .where(where)
       .orderBy(desc(badges.createdAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
+      .limit(safePageSize)
+      .offset((safePage - 1) * safePageSize),
     db.select({ value: count() }).from(badges).where(where),
   ]);
 
@@ -127,6 +131,9 @@ export async function createBadge(input: CreateBadgeInput) {
 export async function updateBadge(id: string, input: Partial<CreateBadgeInput>) {
   const actor = await requireRole("admin");
 
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid badge ID" };
+
   const values: Record<string, unknown> = { updatedAt: new Date() };
   if (input.name !== undefined) values.name = input.name;
   if (input.description !== undefined) values.description = input.description;
@@ -137,13 +144,13 @@ export async function updateBadge(id: string, input: Partial<CreateBadgeInput>) 
   if (input.isAuto !== undefined) values.isAuto = input.isAuto;
   if (input.pointsValue !== undefined) values.pointsValue = input.pointsValue;
 
-  await db.update(badges).set(values).where(eq(badges.id, id));
+  await db.update(badges).set(values).where(eq(badges.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "badge.updated",
     targetType: "badge",
-    targetId: id,
+    targetId: parsedId.data,
     newValues: input as Record<string, unknown>,
   });
 
@@ -154,19 +161,22 @@ export async function updateBadge(id: string, input: Partial<CreateBadgeInput>) 
 export async function toggleBadgeActive(id: string) {
   const actor = await requireRole("admin");
 
-  const badge = await getBadgeById(id);
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid badge ID" };
+
+  const badge = await getBadgeById(parsedId.data);
   if (!badge) return { error: "Badge not found" };
 
   await db
     .update(badges)
     .set({ isActive: !badge.isActive, updatedAt: new Date() })
-    .where(eq(badges.id, id));
+    .where(eq(badges.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: badge.isActive ? "badge.deactivated" : "badge.activated",
     targetType: "badge",
-    targetId: id,
+    targetId: parsedId.data,
   });
 
   revalidatePath("/admin/badges");

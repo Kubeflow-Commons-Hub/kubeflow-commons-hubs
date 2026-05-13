@@ -55,6 +55,10 @@ export async function listEvents({
 }: ListEventsParams = {}) {
   await requireRole("moderator");
 
+  const safePage = Math.max(1, Math.floor(page));
+  const safePageSize = Math.min(50, Math.max(1, Math.floor(pageSize)));
+  const safeSearch = search?.slice(0, 200);
+
   const conditions = [];
 
   if (status === "deleted") {
@@ -66,8 +70,8 @@ export async function listEvents({
     }
   }
 
-  if (search) {
-    conditions.push(ilike(events.title, `%${search}%`));
+  if (safeSearch) {
+    conditions.push(ilike(events.title, `%${safeSearch}%`));
   }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -98,8 +102,8 @@ export async function listEvents({
       .leftJoin(attendeeCount, eq(events.id, attendeeCount.eventId))
       .where(where)
       .orderBy(desc(events.eventDate))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
+      .limit(safePageSize)
+      .offset((safePage - 1) * safePageSize),
     db.select({ value: count() }).from(events).where(where),
   ]);
 
@@ -165,14 +169,17 @@ export async function createEvent(input: CreateEventInput) {
 export async function updateEvent(id: string, input: CreateEventInput) {
   const actor = await requireRole("moderator");
 
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid event ID" };
+
   const parsed = createEventSchema.safeParse(input);
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Invalid input" };
 
-  const existing = await getEventById(id);
+  const existing = await getEventById(parsedId.data);
   if (!existing) return { error: "Event not found" };
 
   const slug = input.slug && input.slug !== existing.slug
-    ? await ensureUniqueSlug(input.slug, id)
+    ? await ensureUniqueSlug(input.slug, parsedId.data)
     : existing.slug;
 
   await db
@@ -193,13 +200,13 @@ export async function updateEvent(id: string, input: CreateEventInput) {
       maxAttendees: input.maxAttendees ?? null,
       updatedAt: new Date(),
     })
-    .where(eq(events.id, id));
+    .where(eq(events.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "event.updated",
     targetType: "event",
-    targetId: id,
+    targetId: parsedId.data,
     newValues: { title: input.title },
   });
 
@@ -210,16 +217,19 @@ export async function updateEvent(id: string, input: CreateEventInput) {
 export async function softDeleteEvent(id: string) {
   const actor = await requireRole("moderator");
 
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid event ID" };
+
   await db
     .update(events)
     .set({ deletedAt: new Date(), updatedAt: new Date() })
-    .where(eq(events.id, id));
+    .where(eq(events.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "event.deleted",
     targetType: "event",
-    targetId: id,
+    targetId: parsedId.data,
   });
 
   revalidatePath("/admin/events");
@@ -229,16 +239,19 @@ export async function softDeleteEvent(id: string) {
 export async function restoreEvent(id: string) {
   const actor = await requireRole("moderator");
 
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid event ID" };
+
   await db
     .update(events)
     .set({ deletedAt: null, updatedAt: new Date() })
-    .where(eq(events.id, id));
+    .where(eq(events.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "event.restored",
     targetType: "event",
-    targetId: id,
+    targetId: parsedId.data,
   });
 
   revalidatePath("/admin/events");
@@ -247,6 +260,9 @@ export async function restoreEvent(id: string) {
 
 export async function listEventAttendees(eventId: string) {
   await requireRole("moderator");
+
+  const parsedId = uuidSchema.safeParse(eventId);
+  if (!parsedId.success) return [];
 
   const rows = await db
     .select({
@@ -260,7 +276,7 @@ export async function listEventAttendees(eventId: string) {
     })
     .from(eventAttendees)
     .innerJoin(users, eq(eventAttendees.userId, users.id))
-    .where(eq(eventAttendees.eventId, eventId))
+    .where(eq(eventAttendees.eventId, parsedId.data))
     .orderBy(desc(eventAttendees.createdAt));
 
   return rows;

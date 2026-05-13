@@ -26,20 +26,25 @@ export async function queryAuditLog({
 }: QueryAuditLogParams = {}) {
   await requireRole("admin");
 
+  const safePage = Math.max(1, Math.floor(page));
+  const safePageSize = Math.min(50, Math.max(1, Math.floor(pageSize)));
+  const safeAction = action?.slice(0, 200);
+  const safeActorSearch = actorSearch?.slice(0, 200);
+
   const conditions = [];
 
-  if (action) {
-    conditions.push(ilike(auditLog.action, `%${action}%`));
+  if (safeAction) {
+    conditions.push(ilike(auditLog.action, `%${safeAction}%`));
   }
 
   if (targetType) {
     conditions.push(eq(auditLog.targetType, targetType));
   }
 
-  if (actorSearch) {
+  if (safeActorSearch) {
     conditions.push(
       sql`${auditLog.actorId} IN (
-        SELECT id FROM users WHERE name ILIKE ${'%' + actorSearch + '%'} OR email ILIKE ${'%' + actorSearch + '%'}
+        SELECT id FROM users WHERE name ILIKE ${'%' + safeActorSearch + '%'} OR email ILIKE ${'%' + safeActorSearch + '%'}
       )`
     );
   }
@@ -71,8 +76,8 @@ export async function queryAuditLog({
       .leftJoin(users, eq(auditLog.actorId, users.id))
       .where(where)
       .orderBy(desc(auditLog.createdAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
+      .limit(safePageSize)
+      .offset((safePage - 1) * safePageSize),
     db.select({ value: count() }).from(auditLog).where(where),
   ]);
 

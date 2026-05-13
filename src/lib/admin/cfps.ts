@@ -26,14 +26,18 @@ export async function listCfpsAdmin({
 }: ListCfpsParams = {}) {
   await requireRole("moderator");
 
+  const safePage = Math.max(1, Math.floor(page));
+  const safePageSize = Math.min(50, Math.max(1, Math.floor(pageSize)));
+  const safeSearch = search?.slice(0, 200);
+
   const conditions = [];
 
   if (status && ["draft", "open", "closed", "reviewing", "finalized"].includes(status)) {
     conditions.push(eq(cfps.status, status as typeof cfps.status.enumValues[number]));
   }
 
-  if (search) {
-    conditions.push(ilike(cfps.title, `%${search}%`));
+  if (safeSearch) {
+    conditions.push(ilike(cfps.title, `%${safeSearch}%`));
   }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -63,8 +67,8 @@ export async function listCfpsAdmin({
       .leftJoin(subCount, eq(cfps.id, subCount.cfpId))
       .where(where)
       .orderBy(desc(cfps.createdAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
+      .limit(safePageSize)
+      .offset((safePage - 1) * safePageSize),
     db.select({ value: count() }).from(cfps).where(where),
   ]);
 
@@ -137,13 +141,13 @@ export async function updateCfp(id: string, input: CreateCfpInput) {
       eventId: input.eventId || null,
       updatedAt: new Date(),
     })
-    .where(eq(cfps.id, id));
+    .where(eq(cfps.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "cfp.updated",
     targetType: "cfp",
-    targetId: id,
+    targetId: parsedId.data,
     newValues: { title: input.title },
   });
 
@@ -154,16 +158,19 @@ export async function updateCfp(id: string, input: CreateCfpInput) {
 export async function archiveCfp(id: string) {
   const actor = await requireRole("moderator");
 
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid CFP ID" };
+
   await db
     .update(cfps)
     .set({ status: "finalized", updatedAt: new Date() })
-    .where(eq(cfps.id, id));
+    .where(eq(cfps.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "cfp.archived",
     targetType: "cfp",
-    targetId: id,
+    targetId: parsedId.data,
   });
 
   revalidatePath("/admin/cfps");

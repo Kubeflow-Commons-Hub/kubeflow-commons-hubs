@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { listEvents } from "@/lib/admin/events";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { EventsClient } from "./events-client";
 import type { Metadata } from "next";

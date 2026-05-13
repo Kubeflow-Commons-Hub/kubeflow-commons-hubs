@@ -55,6 +55,10 @@ export async function listNewsAdmin({
 }: ListNewsParams = {}) {
   await requireRole("moderator");
 
+  const safePage = Math.max(1, Math.floor(page));
+  const safePageSize = Math.min(50, Math.max(1, Math.floor(pageSize)));
+  const safeSearch = search?.slice(0, 200);
+
   const conditions = [];
 
   if (status === "deleted") {
@@ -66,8 +70,8 @@ export async function listNewsAdmin({
     }
   }
 
-  if (search) {
-    conditions.push(ilike(newsPosts.title, `%${search}%`));
+  if (safeSearch) {
+    conditions.push(ilike(newsPosts.title, `%${safeSearch}%`));
   }
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
@@ -89,8 +93,8 @@ export async function listNewsAdmin({
       .leftJoin(users, eq(newsPosts.authorId, users.id))
       .where(where)
       .orderBy(desc(newsPosts.createdAt))
-      .limit(pageSize)
-      .offset((page - 1) * pageSize),
+      .limit(safePageSize)
+      .offset((safePage - 1) * safePageSize),
     db.select({ value: count() }).from(newsPosts).where(where),
   ]);
 
@@ -192,16 +196,19 @@ export async function updateNews(id: string, input: CreateNewsInput) {
 export async function softDeleteNews(id: string) {
   const actor = await requireRole("moderator");
 
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid news ID" };
+
   await db
     .update(newsPosts)
     .set({ deletedAt: new Date(), updatedAt: new Date() })
-    .where(eq(newsPosts.id, id));
+    .where(eq(newsPosts.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "news.deleted",
     targetType: "news",
-    targetId: id,
+    targetId: parsedId.data,
   });
 
   revalidatePath("/admin/news");
@@ -211,16 +218,19 @@ export async function softDeleteNews(id: string) {
 export async function restoreNews(id: string) {
   const actor = await requireRole("moderator");
 
+  const parsedId = uuidSchema.safeParse(id);
+  if (!parsedId.success) return { error: "Invalid news ID" };
+
   await db
     .update(newsPosts)
     .set({ deletedAt: null, updatedAt: new Date() })
-    .where(eq(newsPosts.id, id));
+    .where(eq(newsPosts.id, parsedId.data));
 
   logAuditAsync({
     actorId: actor.id,
     action: "news.restored",
     targetType: "news",
-    targetId: id,
+    targetId: parsedId.data,
   });
 
   revalidatePath("/admin/news");

@@ -1,6 +1,4 @@
-import Link from "next/link";
 import { listUsers } from "@/lib/admin/users";
-import { Badge } from "@/components/ui/badge";
 import { UsersClient } from "./users-client";
 import type { Metadata } from "next";
 
