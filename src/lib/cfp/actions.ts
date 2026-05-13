@@ -361,7 +361,6 @@ export async function submitReview(
         rating: parsed.data.rating,
         feedback: parsed.data.feedback || null,
         internalNotes: parsed.data.internalNotes || null,
-        createdAt: new Date(),
       },
     });
 
@@ -528,6 +527,10 @@ export async function bulkUpdateStatus(
 
   if (submissionIds.length === 0) {
     return { error: "No submissions selected" };
+  }
+
+  if (submissionIds.some((id) => !isValidUuid(id))) {
+    return { error: "Invalid submission ID" };
   }
 
   const submissions = await db

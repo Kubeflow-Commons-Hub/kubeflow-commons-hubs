@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { getOpenCfps } from "@/lib/cfp/actions";
 import { daysUntil, getCfpStatusBadge } from "@/lib/cfp/utils";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Call for Papers",
   description:
