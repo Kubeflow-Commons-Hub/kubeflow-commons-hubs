@@ -115,10 +115,11 @@ export function StatusControls({
 
       {showFeedback && pendingStatus && (
         <div className="mb-3">
-          <label className="block text-xs font-medium text-text-secondary mb-1.5">
+          <label htmlFor="status-feedback" className="block text-xs font-medium text-text-secondary mb-1.5">
             Feedback for speaker (optional)
           </label>
           <textarea
+            id="status-feedback"
             rows={2}
             value={feedbackText}
             onChange={(e) => setFeedbackText(e.target.value)}

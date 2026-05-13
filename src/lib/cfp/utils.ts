@@ -1,3 +1,8 @@
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+export function isValidUuid(id: string): boolean {
+  return UUID_REGEX.test(id);
+}
+
 export type CfpStatus = "draft" | "open" | "closed" | "reviewing" | "finalized";
 export type CfpSubmissionStatus =
   | "submitted"

@@ -352,7 +352,7 @@ export function SubmissionWizard({
               {availableFormats.map((format) => (
                 <label
                   key={format.value}
-                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all focus-within:ring-2 focus-within:ring-[var(--kf-blue)]/50 ${
                     formValues.talkType === format.value
                       ? "border-[var(--kf-blue)]/40 bg-[var(--kf-blue)]/5"
                       : "border-border hover:border-border-strong"

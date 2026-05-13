@@ -3,14 +3,12 @@ import { eq, and } from "drizzle-orm";
 import { createClient } from "@/lib/supabase/server";
 import { db } from "@/db";
 import { cfps, cfpSubmissions, profiles } from "@/db/schema";
-import { isDeadlinePassed } from "@/lib/cfp/utils";
+import { isDeadlinePassed, isValidUuid } from "@/lib/cfp/utils";
 import { SubmissionWizard } from "./wizard";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, XCircle, CheckCircle2 } from "lucide-react";
 import type { Metadata } from "next";
-
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -18,7 +16,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params;
-  if (!UUID_REGEX.test(id)) return { title: "Submit Proposal" };
+  if (!isValidUuid(id)) return { title: "Submit Proposal" };
 
   const [cfp] = await db
     .select({ title: cfps.title })
@@ -34,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function SubmitCfpPage({ params }: PageProps) {
   const { id } = await params;
 
-  if (!UUID_REGEX.test(id)) {
+  if (!isValidUuid(id)) {
     notFound();
   }
 

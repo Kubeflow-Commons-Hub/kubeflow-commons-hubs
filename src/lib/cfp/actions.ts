@@ -4,10 +4,6 @@ import { eq, and, asc, desc, count, sql, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 
-const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-function isValidUuid(id: string): boolean {
-  return UUID_REGEX.test(id);
-}
 import {
   cfps,
   cfpSubmissions,
@@ -23,7 +19,7 @@ import {
   isValidTransition,
   getValidTransitions,
 } from "@/lib/validations/cfp";
-import { isDeadlinePassed } from "@/lib/cfp/utils";
+import { isDeadlinePassed, isValidUuid } from "@/lib/cfp/utils";
 
 type ActionResult = {
   error?: string;
