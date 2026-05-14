@@ -1,5 +1,3 @@
-"use server";
-
 import { db } from "@/db";
 import { newsPosts, users } from "@/db/schema";
 import { eq, and, isNull, desc } from "drizzle-orm";
