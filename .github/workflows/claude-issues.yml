@@ -100,9 +100,9 @@ jobs:
 
                Closes #<ISSUE_NUMBER>"
                ```
-            5. Push and open a PR:
+            5. Push and open a PR (use the explicit branch name, not HEAD):
                ```
-               git push origin HEAD
+               git push origin claude/issue-<NUMBER>-<short-slug>
                gh pr create --title "<title>" --body "<body with issue reference>" --base main
                ```
             6. Post a comment on the issue linking to the PR
