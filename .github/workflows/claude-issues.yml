@@ -46,8 +46,8 @@ jobs:
 
       - name: Configure git identity
         run: |
-          git config user.name "claude-code-review[bot]"
-          git config user.email "claude-code-review[bot]@users.noreply.github.com"
+          git config user.name "claude-issue-assistant[bot]"
+          git config user.email "claude-issue-assistant[bot]@users.noreply.github.com"
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
