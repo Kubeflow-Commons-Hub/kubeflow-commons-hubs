@@ -12,7 +12,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { CFP_TALK_TYPES } from "@/lib/constants";
-import { submitCfpProposal } from "@/lib/cfp/actions";
+import { submitCfpProposal, submitGuestCfpProposal } from "@/lib/cfp/actions";
 
 interface WizardProps {
   cfpId: string;
@@ -20,6 +20,7 @@ interface WizardProps {
   cfpDeadline: string;
   acceptedFormats: string[];
   defaultSpeakerBio: string;
+  isGuest?: boolean;
 }
 
 type WizardState = {
@@ -50,7 +51,7 @@ function wizardReducer(state: WizardState, action: WizardAction): WizardState {
 
 const STEPS = [
   { id: 1, label: "Talk Details" },
-  { id: 2, label: "Bio & Outline" },
+  { id: 2, label: "Speaker Info" },
   { id: 3, label: "Review" },
 ] as const;
 
@@ -62,6 +63,8 @@ interface WizardFormValues {
   talkType: string;
   outline: string;
   speakerBio: string;
+  speakerName: string;
+  speakerEmail: string;
 }
 
 function loadDraft(cfpId: string): Partial<WizardFormValues> {
@@ -131,6 +134,7 @@ export function SubmissionWizard({
   cfpDeadline,
   acceptedFormats,
   defaultSpeakerBio,
+  isGuest = false,
 }: WizardProps) {
   const router = useRouter();
   const [state, dispatch] = useReducer(wizardReducer, {
@@ -150,6 +154,8 @@ export function SubmissionWizard({
       talkType: draft.talkType ?? (acceptedFormats.length === 1 ? acceptedFormats[0] : ""),
       outline: draft.outline ?? "",
       speakerBio: draft.speakerBio ?? defaultSpeakerBio,
+      speakerName: draft.speakerName ?? "",
+      speakerEmail: draft.speakerEmail ?? "",
     };
   });
 
@@ -186,6 +192,12 @@ export function SubmissionWizard({
   }
 
   function validateStep2(): string | null {
+    if (isGuest) {
+      if (formValues.speakerName.trim().length < 2) return "Name must be at least 2 characters";
+      if (formValues.speakerName.trim().length > 100) return "Name must be less than 100 characters";
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formValues.speakerEmail.trim())) return "Please enter a valid email address";
+    }
     if (formValues.speakerBio.trim().length < 20) return "Speaker bio must be at least 20 characters";
     if (formValues.speakerBio.trim().length > 1000) return "Speaker bio must be less than 1000 characters";
     if (formValues.outline.length > 5000) return "Outline must be less than 5000 characters";
@@ -219,7 +231,15 @@ export function SubmissionWizard({
       fd.set("outline", formValues.outline.trim());
       fd.set("speakerBio", formValues.speakerBio.trim());
 
-      const result = await submitCfpProposal(cfpId, fd);
+      let result;
+      if (isGuest) {
+        fd.set("speakerName", formValues.speakerName.trim());
+        fd.set("speakerEmail", formValues.speakerEmail.trim());
+        result = await submitGuestCfpProposal(cfpId, fd);
+      } else {
+        result = await submitCfpProposal(cfpId, fd);
+      }
+
       if (result.error) {
         setError(result.error);
       } else {
@@ -244,7 +264,10 @@ export function SubmissionWizard({
         <h2 className="text-xl font-bold mb-2">Proposal Submitted!</h2>
         <p className="text-sm text-text-secondary mb-6 max-w-md mx-auto">
           Your proposal &quot;{formValues.title}&quot; has been submitted to{" "}
-          {cfpTitle}. You&apos;ll be notified when the status changes.
+          {cfpTitle}.
+          {isGuest
+            ? " You’ll receive updates at your email."
+            : " You’ll be notified when the status changes."}
         </p>
         <div className="flex justify-center gap-3">
           <button
@@ -254,15 +277,17 @@ export function SubmissionWizard({
           >
             Back to CFP
           </button>
-          <button
-            type="button"
-            onClick={() =>
-              router.push(submissionId ? `/submissions/${submissionId}` : "/submissions")
-            }
-            className="px-4 py-2.5 rounded-lg bg-[var(--kf-blue)] text-white text-sm font-medium hover:bg-[var(--kf-blue)]/90 transition-colors"
-          >
-            View My Submissions
-          </button>
+          {!isGuest && (
+            <button
+              type="button"
+              onClick={() =>
+                router.push(submissionId ? `/submissions/${submissionId}` : "/submissions")
+              }
+              className="px-4 py-2.5 rounded-lg bg-[var(--kf-blue)] text-white text-sm font-medium hover:bg-[var(--kf-blue)]/90 transition-colors"
+            >
+              View My Submissions
+            </button>
+          )}
         </div>
       </div>
     );
@@ -393,17 +418,62 @@ export function SubmissionWizard({
         </div>
       )}
 
-      {/* Step 2: Outline & Speaker Bio */}
+      {/* Step 2: Speaker Info, Bio & Outline */}
       {state.step === 2 && (
         <div className="space-y-4">
           <div>
             <h2 className="text-lg font-semibold text-text-primary mb-1">
-              Bio & Outline
+              Speaker Info
             </h2>
             <p className="text-sm text-text-secondary">
-              Help reviewers learn about you and your talk structure.
+              {isGuest
+                ? "Tell us about yourself and your talk structure."
+                : "Help reviewers learn about you and your talk structure."}
             </p>
           </div>
+
+          {isGuest && (
+            <>
+              <div>
+                <label
+                  htmlFor="speakerName"
+                  className="block text-sm font-medium text-text-secondary mb-1.5"
+                >
+                  Your Name <span className="text-red-400">*</span>
+                </label>
+                <input
+                  id="speakerName"
+                  type="text"
+                  value={formValues.speakerName}
+                  onChange={(e) => updateField("speakerName", e.target.value)}
+                  maxLength={100}
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-[var(--kf-blue)]/50 focus:border-transparent transition-all"
+                  placeholder="Jane Doe"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="speakerEmail"
+                  className="block text-sm font-medium text-text-secondary mb-1.5"
+                >
+                  Email Address <span className="text-red-400">*</span>
+                </label>
+                <input
+                  id="speakerEmail"
+                  type="email"
+                  value={formValues.speakerEmail}
+                  onChange={(e) => updateField("speakerEmail", e.target.value)}
+                  maxLength={254}
+                  className="w-full px-4 py-2.5 rounded-lg border border-border bg-bg-primary text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-[var(--kf-blue)]/50 focus:border-transparent transition-all"
+                  placeholder="jane@example.com"
+                />
+                <p className="mt-1 text-xs text-text-muted">
+                  We&apos;ll use this to send you updates about your submission.
+                </p>
+              </div>
+            </>
+          )}
 
           <div>
             <label
@@ -481,6 +551,24 @@ export function SubmissionWizard({
           </div>
 
           <div className="space-y-3">
+            {isGuest && (
+              <>
+                <ReviewSection
+                  label="Speaker Name"
+                  value={formValues.speakerName}
+                  onEdit={() =>
+                    dispatch({ type: "JUMP", step: 2, returnTo: 3 })
+                  }
+                />
+                <ReviewSection
+                  label="Email Address"
+                  value={formValues.speakerEmail}
+                  onEdit={() =>
+                    dispatch({ type: "JUMP", step: 2, returnTo: 3 })
+                  }
+                />
+              </>
+            )}
             <ReviewSection
               label="Talk Title"
               value={formValues.title}
