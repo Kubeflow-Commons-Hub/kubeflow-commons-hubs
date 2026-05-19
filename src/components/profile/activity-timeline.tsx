@@ -48,12 +48,14 @@ interface ActivityTimelineProps {
 }
 
 export function ActivityTimeline({ activities }: ActivityTimelineProps) {
+  const filtered = activities.filter((a) => a.actionType !== "badge_earned");
+
   return (
     <div className="relative">
       <div className="absolute left-[15px] top-0 bottom-0 w-px bg-border" />
 
       <div className="space-y-4">
-        {activities.map((activity) => {
+        {filtered.map((activity) => {
           const date = new Date(activity.createdAt);
           return (
             <div key={activity.id} className="relative flex gap-3 pl-0">
