@@ -9,7 +9,6 @@ type Member = {
   title: string;
   company: string;
   level: number;
-  badges: number;
   location: string;
 };
 
@@ -86,12 +85,6 @@ export function MembersClient({ members }: { members: Member[] }) {
               <p className="text-xs text-text-muted">{member.company}</p>
 
               <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border w-full justify-center">
-                <span className="text-xs text-text-muted">
-                  <span className="font-medium text-text-secondary">
-                    {member.badges}
-                  </span>{" "}
-                  badges
-                </span>
                 <span className="text-xs text-text-muted">{member.location}</span>
               </div>
             </a>

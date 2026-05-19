@@ -12,7 +12,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { db } from "@/db";
-import { users, profiles, userBadges, badges, activityLog, githubContributions } from "@/db/schema";
+import { users, profiles, activityLog, githubContributions } from "@/db/schema";
 import { getCurrentUser } from "@/lib/auth/guards";
 import { LEVELS } from "@/lib/constants";
 import { LevelRing } from "@/components/profile/level-ring";
@@ -76,12 +76,7 @@ export default async function MemberProfilePage({ params }: PageProps) {
 
   const level = LEVELS.find((l) => l.level === (profile?.level ?? 1)) || LEVELS[0];
 
-  const [earnedBadges, activities, contributions] = await Promise.all([
-    db
-      .select({ badge: badges, awardedAt: userBadges.awardedAt })
-      .from(userBadges)
-      .innerJoin(badges, eq(userBadges.badgeId, badges.id))
-      .where(eq(userBadges.userId, user.id)),
+  const [activities, contributions] = await Promise.all([
     db
       .select()
       .from(activityLog)
@@ -203,42 +198,11 @@ export default async function MemberProfilePage({ params }: PageProps) {
       {/* Tabbed Content */}
       <ProfileTabs
         tabs={[
-          { id: "badges", label: "Badges", count: earnedBadges.length },
           { id: "contributions", label: "Contributions", count: contributions.length },
           { id: "timeline", label: "Timeline", count: activities.length },
         ]}
       >
         {{
-          badges: (
-            <section>
-              {earnedBadges.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {earnedBadges.map(({ badge, awardedAt }) => (
-                    <div
-                      key={badge.id}
-                      className="flex flex-col items-center p-4 rounded-xl border border-border bg-bg-secondary text-center"
-                    >
-                      <div className="size-12 rounded-full bg-gradient-to-br from-[var(--kf-blue)]/20 to-[var(--kf-teal)]/20 flex items-center justify-center mb-2">
-                        <span className="text-lg">🏆</span>
-                      </div>
-                      <p className="text-xs font-medium text-text-primary">{badge.name}</p>
-                      <p className="text-[10px] text-text-muted mt-0.5 capitalize">{badge.tier}</p>
-                      <p className="text-[10px] text-text-muted">
-                        {new Date(awardedAt).toLocaleDateString("en-IN", { month: "short", year: "numeric" })}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <EmptyState
-                  title="No badges yet"
-                  description="Start contributing to earn your first badge!"
-                  actionLabel="Browse Badges"
-                  actionHref="/badges"
-                />
-              )}
-            </section>
-          ),
           contributions: (
             <section>
               {profile?.githubUsername ? (

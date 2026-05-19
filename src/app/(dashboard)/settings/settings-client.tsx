@@ -123,7 +123,6 @@ function EmailPreferencesSection({
   );
 
   const prefItems = [
-    { id: "badgeEarned" as const, label: "Badge earned notifications" },
     { id: "cfpStatusChange" as const, label: "CFP status changes" },
     { id: "eventReminders" as const, label: "Event reminders" },
     { id: "weeklyDigest" as const, label: "Weekly digest" },

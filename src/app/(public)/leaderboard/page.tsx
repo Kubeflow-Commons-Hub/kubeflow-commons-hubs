@@ -119,7 +119,6 @@ export default function LeaderboardPage() {
                 <th className="text-left p-4 font-medium">Rank</th>
                 <th className="text-left p-4 font-medium">Member</th>
                 <th className="text-left p-4 font-medium hidden sm:table-cell">Level</th>
-                <th className="text-right p-4 font-medium hidden sm:table-cell">Badges</th>
                 <th className="text-right p-4 font-medium">Points</th>
                 <th className="text-center p-4 font-medium w-12">Trend</th>
               </tr>
@@ -143,9 +142,6 @@ export default function LeaderboardPage() {
                   </td>
                   <td className="p-4 text-sm text-text-secondary hidden sm:table-cell">
                     Lv. {member.level}
-                  </td>
-                  <td className="p-4 text-sm text-text-secondary text-right hidden sm:table-cell">
-                    {member.badges}
                   </td>
                   <td className="p-4 text-sm font-semibold font-mono text-right">
                     {member.points.toLocaleString()}
