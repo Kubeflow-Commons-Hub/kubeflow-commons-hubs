@@ -94,6 +94,19 @@ export const notificationTypeEnum = pgEnum("notification_type", [
   "general",
 ]);
 
+export const surveyStatusEnum = pgEnum("survey_status", [
+  "draft",
+  "active",
+  "closed",
+]);
+
+export const surveyQuestionTypeEnum = pgEnum("survey_question_type", [
+  "short_text",
+  "long_text",
+  "single_choice",
+  "multi_choice",
+]);
+
 export const activityTypeEnum = pgEnum("activity_type", [
   "profile_completed",
   "event_attended",
@@ -375,6 +388,58 @@ export const auditLog = pgTable("audit_log", {
   ipAddress: text("ip_address"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+// ─── SURVEYS ───────────────────────────────────────────
+export const surveys = pgTable("surveys", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description"),
+  status: surveyStatusEnum("status").default("draft").notNull(),
+  eventId: uuid("event_id").references(() => events.id, { onDelete: "set null" }),
+  opensAt: timestamp("opens_at", { withTimezone: true }),
+  closesAt: timestamp("closes_at", { withTimezone: true }),
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ─── SURVEY QUESTIONS ──────────────────────────────────
+export const surveyQuestions = pgTable(
+  "survey_questions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    surveyId: uuid("survey_id")
+      .references(() => surveys.id, { onDelete: "cascade" })
+      .notNull(),
+    questionText: text("question_text").notNull(),
+    questionType: surveyQuestionTypeEnum("question_type").notNull(),
+    options: jsonb("options").$type<string[]>(),
+    isRequired: boolean("is_required").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+  },
+  (table) => [
+    index("survey_questions_survey_idx").on(table.surveyId, table.sortOrder),
+  ]
+);
+
+// ─── SURVEY RESPONSES ──────────────────────────────────
+export const surveyResponses = pgTable(
+  "survey_responses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    surveyId: uuid("survey_id")
+      .references(() => surveys.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    answers: jsonb("answers").$type<Record<string, string | string[]>>().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    uniqueIndex("survey_responses_unique_idx").on(table.surveyId, table.userId),
+  ]
+);
 
 // ─── NOTIFICATIONS ──────────────────────────────────────
 export const notifications = pgTable(

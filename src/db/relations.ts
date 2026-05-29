@@ -14,6 +14,9 @@ import {
   eventAttendees,
   newsPosts,
   auditLog,
+  surveys,
+  surveyQuestions,
+  surveyResponses,
 } from "./schema";
 
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -135,6 +138,33 @@ export const newsPostsRelations = relations(newsPosts, ({ one }) => ({
 export const auditLogRelations = relations(auditLog, ({ one }) => ({
   actor: one(users, {
     fields: [auditLog.actorId],
+    references: [users.id],
+  }),
+}));
+
+export const surveysRelations = relations(surveys, ({ one, many }) => ({
+  event: one(events, {
+    fields: [surveys.eventId],
+    references: [events.id],
+  }),
+  questions: many(surveyQuestions),
+  responses: many(surveyResponses),
+}));
+
+export const surveyQuestionsRelations = relations(surveyQuestions, ({ one }) => ({
+  survey: one(surveys, {
+    fields: [surveyQuestions.surveyId],
+    references: [surveys.id],
+  }),
+}));
+
+export const surveyResponsesRelations = relations(surveyResponses, ({ one }) => ({
+  survey: one(surveys, {
+    fields: [surveyResponses.surveyId],
+    references: [surveys.id],
+  }),
+  user: one(users, {
+    fields: [surveyResponses.userId],
     references: [users.id],
   }),
 }));

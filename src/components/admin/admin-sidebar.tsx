@@ -9,6 +9,7 @@ import {
   Calendar,
   Newspaper,
   MessageSquareText,
+  ClipboardList,
   Users,
   Award,
   ScrollText,
@@ -49,6 +50,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Events", href: "/admin/events", icon: Calendar },
       { label: "CFPs", href: "/admin/cfps", icon: MessageSquareText },
       { label: "News", href: "/admin/news", icon: Newspaper },
+      { label: "Surveys", href: "/admin/surveys", icon: ClipboardList },
     ],
   },
   {
