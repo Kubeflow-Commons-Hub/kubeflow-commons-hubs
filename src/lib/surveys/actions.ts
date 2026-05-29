@@ -21,6 +21,10 @@ export async function getPublicSurvey(id: string) {
 
   if (!survey) return null;
 
+  const now = new Date();
+  if (survey.opensAt && now < survey.opensAt) return null;
+  if (survey.closesAt && now > survey.closesAt) return null;
+
   const questions = await db
     .select()
     .from(surveyQuestions)
@@ -65,6 +69,10 @@ export async function submitSurveyResponse(input: SubmitSurveyInput) {
 
   if (!survey) return { error: "Survey is not active" };
 
+  const now = new Date();
+  if (survey.opensAt && now < survey.opensAt) return { error: "Survey is not yet open" };
+  if (survey.closesAt && now > survey.closesAt) return { error: "Survey has closed" };
+
   const questions = await db
     .select()
     .from(surveyQuestions)
@@ -80,24 +88,18 @@ export async function submitSurveyResponse(input: SubmitSurveyInput) {
     }
   }
 
-  const [existing] = await db
-    .select({ id: surveyResponses.id })
-    .from(surveyResponses)
-    .where(
-      and(
-        eq(surveyResponses.surveyId, surveyId),
-        eq(surveyResponses.userId, user.id)
-      )
-    )
-    .limit(1);
-
-  if (existing) return { error: "You have already submitted a response to this survey" };
-
-  await db.insert(surveyResponses).values({
-    surveyId,
-    userId: user.id,
-    answers,
-  });
+  try {
+    await db.insert(surveyResponses).values({
+      surveyId,
+      userId: user.id,
+      answers,
+    });
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message.includes("survey_responses_unique_idx")) {
+      return { error: "You have already submitted a response to this survey" };
+    }
+    throw err;
+  }
 
   return { success: true };
 }
