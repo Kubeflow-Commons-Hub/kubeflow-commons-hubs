@@ -2,15 +2,8 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AnimatedCounter } from "./animated-counter";
 import { ParticleField } from "./particle-field";
-
-const stats = [
-  { label: "Members", value: 142 },
-  { label: "Events", value: 23 },
-  { label: "Contributions", value: 890 },
-  { label: "Badges Earned", value: 456 },
-];
+import { SITE_NAME } from "@/lib/constants";
 
 export function Hero() {
   return (
@@ -59,11 +52,9 @@ export function Hero() {
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] mb-6 text-white"
           style={{ textShadow: "0 0 60px rgba(37, 99, 235, 0.3)" }}
         >
-          The Home of{" "}
           <span className="bg-gradient-to-r from-[#3B82F6] via-[#38BDF8] to-[#3B82F6] bg-clip-text text-transparent">
-            Kubeflow
-          </span>{" "}
-          in India
+            {SITE_NAME}
+          </span>
         </h1>
 
         {/* Subheading */}
@@ -73,7 +64,7 @@ export function Hero() {
         </p>
 
         {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <Button
             size="xl"
             className="bg-[#2563EB] text-white font-semibold hover:bg-[#1D4ED8] shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 rounded-xl transition-all"
@@ -88,23 +79,6 @@ export function Hero() {
           >
             <Link href="/events">Explore Events</Link>
           </Button>
-        </div>
-
-        {/* Live stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 max-w-2xl mx-auto">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="rounded-xl px-4 py-3 text-center backdrop-blur-md border border-white/10 bg-white/5"
-            >
-              <div className="text-2xl sm:text-3xl font-bold font-mono tabular-nums text-white">
-                <AnimatedCounter value={stat.value} />
-              </div>
-              <p className="text-xs mt-1 uppercase tracking-wider font-medium text-blue-200/50">
-                {stat.label}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
     </section>

@@ -20,7 +20,7 @@ export const mockPosts: MockNewsPost[] = [
     slug: "kubeflow-1-9-released",
     tags: ["Release", "Kubeflow"],
     publishedAt: "2026-05-01T10:00:00",
-    author: "Kubeflow Common Hubs",
+    author: "Kubeflow Commons Hub",
     content:
       "Kubeflow 1.9 has officially landed, and it brings a host of improvements that Indian ML teams have been waiting for. This release focuses on three key areas: pipeline reliability, notebook experience, and model serving at scale.\n\nKubeflow Pipelines v2 now supports conditional execution, loop parallelism, and improved caching. Pipeline authors can define complex DAGs with branching logic, retry policies, and resource quotas — all declaratively. The new SDK also introduces type-safe component I/O, reducing runtime errors significantly.\n\nThe Notebook experience gets a major upgrade with JupyterLab 4.x integration, built-in Git support, and the ability to spawn notebooks with custom container images. Teams at Flipkart and Razorpay have already reported 40% faster iteration cycles using the new notebook controller.\n\nKServe (model serving) now supports multi-model serving on a single GPU, automatic batching, and canary deployments out of the box. For Indian startups running on tight budgets, this means serving multiple models on fewer GPU instances without sacrificing latency.\n\nThe community has also contributed improved documentation in Hindi, making Kubeflow more accessible to developers across India. We encourage everyone to try the new release and share feedback on the community Slack channel.",
   },
