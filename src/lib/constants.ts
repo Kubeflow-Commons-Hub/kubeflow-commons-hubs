@@ -1,7 +1,7 @@
 export const EVENT_TIMEZONE = "Asia/Kolkata";
 export const EVENT_TIMEZONE_OFFSET = "+05:30";
 
-export const SITE_NAME = "Kubeflow Common Hubs";
+export const SITE_NAME = "Kubeflow Commons Hub";
 export const SITE_DESCRIPTION =
   "The one-stop community hub for Kubeflow in India. Learn, contribute, and grow with the community.";
 export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://kubeflowcommonhubs.in";
@@ -10,6 +10,7 @@ export const NAV_LINKS = [
   { label: "Events", href: "/events" },
   { label: "News", href: "/news" },
   { label: "CFPs", href: "/cfps" },
+  { label: "Gallery", href: "/gallery" },
 ] as const;
 
 export const POINT_VALUES = {
