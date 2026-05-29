@@ -77,10 +77,12 @@ export function GalleryGrid({ images }: GalleryGridProps) {
         style={{ columnFill: "balance" }}
       >
         {images.map((src, i) => (
-          <div
+          <button
+            type="button"
             key={src}
-            className="break-inside-avoid group relative overflow-hidden rounded-xl cursor-pointer bg-bg-secondary border border-border/50 hover:border-[var(--kf-blue)]/40 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--kf-blue)]/10"
+            className="break-inside-avoid group relative overflow-hidden rounded-xl cursor-pointer bg-bg-secondary border border-border/50 hover:border-[var(--kf-blue)]/40 transition-all duration-300 hover:shadow-xl hover:shadow-[var(--kf-blue)]/10 w-full text-left"
             onClick={() => openLightbox(i)}
+            aria-label={`View photo ${i + 1}`}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -89,13 +91,16 @@ export function GalleryGrid({ images }: GalleryGridProps) {
               className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
             />
-          </div>
+          </button>
         ))}
       </div>
 
       {/* Lightbox */}
       {lightboxIndex !== null && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Photo lightbox"
           className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center"
           onClick={closeLightbox}
         >
