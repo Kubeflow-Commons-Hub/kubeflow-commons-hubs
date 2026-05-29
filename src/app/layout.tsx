@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants";
 import "./globals.css";
 
 const inter = Inter({
@@ -18,11 +19,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"),
   title: {
-    default: "Kubeflow Common Hubs | Community Platform",
-    template: "%s | Kubeflow Common Hubs",
+    default: `${SITE_NAME} | Community Platform`,
+    template: `%s | ${SITE_NAME}`,
   },
-  description:
-    "The one-stop community hub for Kubeflow in India. Learn, contribute, and grow with the community.",
+  description: SITE_DESCRIPTION,
   keywords: [
     "Kubeflow",
     "MLOps",
@@ -33,20 +33,18 @@ export const metadata: Metadata = {
     "CNCF",
     "Cloud Native",
   ],
-  authors: [{ name: "Kubeflow Common Hubs" }],
+  authors: [{ name: SITE_NAME }],
   openGraph: {
     type: "website",
     locale: "en_IN",
-    siteName: "Kubeflow Common Hubs",
-    title: "Kubeflow Common Hubs | Community Platform",
-    description:
-      "The one-stop community hub for Kubeflow in India. Learn, contribute, and grow with the community.",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} | Community Platform`,
+    description: SITE_DESCRIPTION,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kubeflow Common Hubs",
-    description:
-      "The one-stop community hub for Kubeflow in India.",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
   },
   robots: {
     index: true,
