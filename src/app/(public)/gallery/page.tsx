@@ -22,7 +22,7 @@ export default async function GalleryPage() {
         return IMAGE_EXTENSIONS.has(ext);
       })
       .sort()
-      .map((f) => `/gallery/${f}`);
+      .map((f) => `/gallery/${encodeURIComponent(f)}`);
   } catch {
     // folder missing or unreadable — show empty state
   }

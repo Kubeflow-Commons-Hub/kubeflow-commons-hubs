@@ -87,7 +87,7 @@ export function GalleryGrid({ images }: GalleryGridProps) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={src}
-              alt="Gallery photo"
+              alt={`Gallery photo ${i + 1}`}
               className="w-full h-auto block transition-transform duration-500 group-hover:scale-105"
               loading="lazy"
             />

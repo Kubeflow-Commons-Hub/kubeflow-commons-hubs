@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ParticleField } from "./particle-field";
+import { SITE_NAME } from "@/lib/constants";
 
 export function Hero() {
   return (
@@ -52,7 +53,7 @@ export function Hero() {
           style={{ textShadow: "0 0 60px rgba(37, 99, 235, 0.3)" }}
         >
           <span className="bg-gradient-to-r from-[#3B82F6] via-[#38BDF8] to-[#3B82F6] bg-clip-text text-transparent">
-            Kubeflow Commons Hubs
+            {SITE_NAME}
           </span>
         </h1>
 
