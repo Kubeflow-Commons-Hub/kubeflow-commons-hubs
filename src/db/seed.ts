@@ -8,6 +8,8 @@ import {
   newsPosts,
   cfps,
   activityLog,
+  surveys,
+  surveyQuestions,
 } from "./schema";
 
 const SEED_USERS = [
@@ -141,6 +143,34 @@ async function seed() {
     await db.insert(activityLog).values(activity).onConflictDoNothing();
   }
   console.log(`  ✓ ${activities.length} activity log entries`);
+
+  // Surveys
+  const [defaultSurvey] = await db
+    .insert(surveys)
+    .values({
+      title: "Kubeflow Community Survey",
+      description: "Help us understand your Kubeflow journey and how the community can best support you.",
+      status: "active" as const,
+    })
+    .onConflictDoNothing()
+    .returning({ id: surveys.id });
+
+  if (defaultSurvey) {
+    const SEED_QUESTIONS = [
+      { surveyId: defaultSurvey.id, text: "Full Name", type: "short_text" as const, options: null, required: true, sortOrder: 0 },
+      { surveyId: defaultSurvey.id, text: "Email Address", type: "short_text" as const, options: null, required: true, sortOrder: 1 },
+      { surveyId: defaultSurvey.id, text: "What best describes your primary role?", type: "single_choice" as const, options: ["ML Engineer / MLOps Engineer", "Data Scientist", "DevOps / Platform / Infrastructure Engineer", "Software Architect / Developer", "Student / Beginner / Other"], required: true, sortOrder: 2 },
+      { surveyId: defaultSurvey.id, text: "Where are you currently in your Kubeflow journey?", type: "single_choice" as const, options: ["Just exploring / Want to learn", "Running experiments / Development phase", "Running Kubeflow in Production", "Active contributor to Kubeflow repositories"], required: true, sortOrder: 3 },
+      { surveyId: defaultSurvey.id, text: "Which Kubeflow components are most critical to your workflow? (Select up to 3)", type: "multi_choice" as const, options: ["Pipelines (KFP)", "Notebooks", "AutoML (Katib)", "Model Serving (KServe)", "Distributed Training Operators", "None yet"], required: true, sortOrder: 4 },
+      { surveyId: defaultSurvey.id, text: "What is the biggest hurdle you face when using or trying to adopt Kubeflow?", type: "single_choice" as const, options: ["Complex installation and upgrades (e.g., Kustomize vs. Helm)", "Lack of beginner-friendly documentation or end-to-end tutorials", "Heavy resource/infrastructure requirements", "Missing features (e.g., Model monitoring, MLflow integration)", "Other"], required: true, sortOrder: 5 },
+      { surveyId: defaultSurvey.id, text: "How can the \"Kubeflow Common Hubs\" community platform best support you?", type: "multi_choice" as const, options: ["Local meetups and hands-on workshops", "Curated \"Good First Issues\" to help me start contributing", "The badge/gamification system to track my open-source journey", "Networking with other ML/DevOps professionals in India"], required: true, sortOrder: 6 },
+      { surveyId: defaultSurvey.id, text: "(Optional) What is one topic you'd love to see covered at a future meetup?", type: "long_text" as const, options: null, required: false, sortOrder: 7 },
+    ];
+    for (const q of SEED_QUESTIONS) {
+      await db.insert(surveyQuestions).values(q).onConflictDoNothing();
+    }
+    console.log(`  ✓ 1 survey with ${SEED_QUESTIONS.length} questions`);
+  }
 
   console.log("\nSeed complete!");
   process.exit(0);

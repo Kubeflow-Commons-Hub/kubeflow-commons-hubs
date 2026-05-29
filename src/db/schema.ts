@@ -363,6 +363,67 @@ export const activityLog = pgTable(
   ]
 );
 
+// ─── SURVEYS ───────────────────────────────────────────
+export const surveyStatusEnum = pgEnum("survey_status", [
+  "draft",
+  "active",
+  "closed",
+]);
+
+export const surveyQuestionTypeEnum = pgEnum("survey_question_type", [
+  "short_text",
+  "long_text",
+  "single_choice",
+  "multi_choice",
+]);
+
+export const surveys = pgTable("surveys", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  title: text("title").notNull(),
+  description: text("description"),
+  eventId: uuid("event_id").references(() => events.id, { onDelete: "set null" }),
+  status: surveyStatusEnum("status").default("draft").notNull(),
+  opensAt: timestamp("opens_at", { withTimezone: true }),
+  closesAt: timestamp("closes_at", { withTimezone: true }),
+  createdBy: uuid("created_by").references(() => users.id),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+});
+
+export const surveyQuestions = pgTable(
+  "survey_questions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    surveyId: uuid("survey_id")
+      .references(() => surveys.id, { onDelete: "cascade" })
+      .notNull(),
+    text: text("text").notNull(),
+    type: surveyQuestionTypeEnum("type").notNull(),
+    options: jsonb("options").$type<string[]>(),
+    required: boolean("required").default(true).notNull(),
+    sortOrder: integer("sort_order").default(0).notNull(),
+  },
+  (table) => [index("survey_questions_survey_idx").on(table.surveyId)]
+);
+
+export const surveyResponses = pgTable(
+  "survey_responses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    surveyId: uuid("survey_id")
+      .references(() => surveys.id, { onDelete: "cascade" })
+      .notNull(),
+    userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
+    answers: jsonb("answers").$type<Record<string, string | string[]>>().notNull(),
+    submittedAt: timestamp("submitted_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("survey_responses_survey_idx").on(table.surveyId),
+    uniqueIndex("survey_responses_user_survey_idx").on(table.surveyId, table.userId),
+  ]
+);
+
 // ─── AUDIT LOG ──────────────────────────────────────────
 export const auditLog = pgTable("audit_log", {
   id: uuid("id").primaryKey().defaultRandom(),
