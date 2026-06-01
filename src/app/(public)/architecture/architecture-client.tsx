@@ -301,9 +301,17 @@ export function ArchitectureClient() {
             {personas.map((p) => (
               <div
                 key={p.id}
+                role="button"
+                tabIndex={0}
                 onClick={() =>
                   setActivePersona((prev) => (prev === p.id ? null : p.id))
                 }
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    setActivePersona((prev) => (prev === p.id ? null : p.id));
+                  }
+                }}
                 className={cn(
                   "flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer mb-2 last:mb-0 transition-all duration-300 hover:translate-x-1 bg-bg-tertiary/60",
                   activePersona === p.id && "translate-x-1",

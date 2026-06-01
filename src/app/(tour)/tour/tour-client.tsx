@@ -196,9 +196,12 @@ function Slide1({ isActive }: { isActive: boolean }) {
           return (
             <div
               key={i}
+              role="button"
+              tabIndex={0}
               className="h-[148px] sm:h-[165px] lg:h-[200px] cursor-pointer"
               style={{ perspective: "900px", opacity: 0, animation: isActive ? `tour-card-entrance 0.45s ease ${card.delay} forwards` : "none" }}
               onClick={() => !isFlipped && setFlipped((p) => new Set([...p, i]))}
+              onKeyDown={(e) => { if ((e.key === "Enter" || e.key === " ") && !isFlipped) { e.preventDefault(); setFlipped((p) => new Set([...p, i])); } }}
             >
               <div
                 className="relative w-full h-full"
@@ -627,6 +630,19 @@ function Slide9() {
 
 // ── Guide Dialog ──────────────────────────────────────────────────────────
 
+function GuideText({ message }: { message: string }) {
+  const parts = message.split(/(<strong>[^<]*<\/strong>|<em>[^<]*<\/em>)/g);
+  return (
+    <>
+      {parts.map((part, i) => {
+        if (part.startsWith("<strong>")) return <strong key={i}>{part.slice(8, -9)}</strong>;
+        if (part.startsWith("<em>")) return <em key={i}>{part.slice(4, -5)}</em>;
+        return <span key={i}>{part}</span>;
+      })}
+    </>
+  );
+}
+
 function GuideDialog({
   slide, dismissedSlide, onDismiss, onRestore,
 }: {
@@ -656,9 +672,9 @@ function GuideDialog({
       </div>
       <div className="flex-1 min-w-0">
         <div className="text-xs font-bold text-[#FF8A65] mb-1 uppercase tracking-widest">Kube</div>
-        <div className="text-xs lg:text-sm text-text-secondary leading-relaxed" dangerouslySetInnerHTML={{ __html: message }} />
+        <div className="text-xs lg:text-sm text-text-secondary leading-relaxed"><GuideText message={message} /></div>
       </div>
-      <button onClick={onDismiss} className="text-text-muted hover:text-text-primary transition-colors text-xl leading-none flex-none">×</button>
+      <button onClick={onDismiss} aria-label="Dismiss guide" className="text-text-muted hover:text-text-primary transition-colors text-xl leading-none flex-none">×</button>
     </div>
   );
 }
@@ -741,6 +757,7 @@ export function TourClient() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === "ArrowRight" || e.key === "ArrowDown") goNext();
       if (e.key === "ArrowLeft"  || e.key === "ArrowUp")   goPrev();
       if (e.key === "f" || e.key === "F") toggleFullscreen();
