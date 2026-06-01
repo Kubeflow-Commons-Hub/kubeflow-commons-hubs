@@ -983,7 +983,7 @@ export function ArchitectureClient() {
       {/* Floating tour button */}
       <Link
         href="/tour"
-        className="fixed bottom-6 left-6 z-50 flex items-center gap-2.5 px-5 py-3 rounded-full text-white text-sm font-semibold shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
+        className="hidden sm:flex fixed bottom-6 left-6 z-50 items-center gap-2.5 px-5 py-3 rounded-full text-white text-sm font-semibold shadow-lg transition-all hover:-translate-y-0.5 hover:shadow-xl"
         style={{
           background: "linear-gradient(135deg, #FF6B35, #FF8A65)",
           boxShadow: "0 4px 20px rgba(255,107,53,0.4)",
