@@ -114,7 +114,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const { user, userRole, isLoading } = useAuth();
 
-  const { theme, setTheme } = useTheme();
+  const { setTheme, resolvedTheme } = useTheme();
   const isHome = pathname === "/";
   const showSolid = !isHome || scrolled;
 
@@ -183,7 +183,7 @@ export function Header() {
             <Search className="size-[18px]" />
           </button>
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             className={cn(
               "p-2 rounded-lg transition-colors",
               showSolid
@@ -314,13 +314,13 @@ export function Header() {
             <div className="border-t border-border my-2" />
 
             <button
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors w-full"
               aria-label="Toggle theme"
             >
               <Sun className="size-4 hidden dark:block" />
               <Moon className="size-4 dark:hidden" />
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+              {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
             </button>
 
             <div className="border-t border-border my-2" />

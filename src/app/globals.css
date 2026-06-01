@@ -48,13 +48,13 @@
   --duration-slow: 400ms;
 
   /* Persona tag colors — darker for light-bg readability */
-  --persona-leader-bg: rgba(233, 30, 99, 0.15);
+  --persona-leader-bg: rgba(233, 30, 99, 0.2);
   --persona-leader-color: #AD1457;
-  --persona-scientist-bg: rgba(76, 175, 80, 0.15);
+  --persona-scientist-bg: rgba(76, 175, 80, 0.2);
   --persona-scientist-color: #2E7D32;
-  --persona-mlops-bg: rgba(33, 150, 243, 0.15);
+  --persona-mlops-bg: rgba(33, 150, 243, 0.2);
   --persona-mlops-color: #1565C0;
-  --persona-admin-bg: rgba(255, 152, 0, 0.15);
+  --persona-admin-bg: rgba(255, 152, 0, 0.2);
   --persona-admin-color: #E65100;
 
   /* Radius */

@@ -5,7 +5,7 @@ import { ArrowLeft, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/providers";
 
 export default function TourLayout({ children }: { children: React.ReactNode }) {
-  const { theme, setTheme } = useTheme();
+  const { resolvedTheme, setTheme } = useTheme();
 
   return (
     <>
@@ -26,7 +26,7 @@ export default function TourLayout({ children }: { children: React.ReactNode }) 
 
         <div className="flex items-center gap-1">
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
             className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors"
             aria-label="Toggle theme"
           >
