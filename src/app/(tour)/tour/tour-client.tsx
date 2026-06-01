@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, startTransition } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
@@ -169,7 +169,7 @@ function Slide1({ isActive }: { isActive: boolean }) {
   const [flipped, setFlipped] = useState<Set<number>>(new Set());
   const allFlipped = flipped.size === FLIP_CARDS.length;
 
-  useEffect(() => { if (!isActive) setFlipped(new Set()); }, [isActive]);
+  useEffect(() => { if (!isActive) startTransition(() => setFlipped(new Set())); }, [isActive]);
 
   return (
     <div className="flex flex-col items-center text-center w-full max-w-xl lg:max-w-3xl mx-auto px-2">
@@ -480,7 +480,7 @@ function TrainingExtra({ isActive }: { isActive: boolean }) {
 
   useEffect(() => {
     if (!isActive) {
-      setEpoch(1); setLoss(2.45);
+      startTransition(() => { setEpoch(1); setLoss(2.45); });
       if (itvRef.current) clearInterval(itvRef.current);
       return;
     }
@@ -577,7 +577,7 @@ function Slide9() {
   return (
     <div className="flex flex-col items-center text-center w-full max-w-xl lg:max-w-3xl mx-auto px-2">
       <SlideIcon emoji="☸️" gradient="linear-gradient(135deg,#FF6B35,#7B68EE)" color="white" />
-      <SlideHeading>You're Part of <GradientText>Something Bigger</GradientText></SlideHeading>
+      <SlideHeading>{"You're"} Part of <GradientText>Something Bigger</GradientText></SlideHeading>
       <SlideBody>Kubeflow is built by a global open-source community — CNCF project, runs on any Kubernetes cluster. Everything you just saw is accessible through the <strong>Kubeflow Central Dashboard</strong>, one unified UI.</SlideBody>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 w-full mb-5">
@@ -753,7 +753,7 @@ export function TourClient() {
   const onTouchEnd = (e: React.TouchEvent) => {
     if (touchStartX.current === null) return;
     const dx = e.changedTouches[0].clientX - touchStartX.current;
-    if (Math.abs(dx) > 45) dx < 0 ? goNext() : goPrev();
+    if (Math.abs(dx) > 45) { if (dx < 0) goNext(); else goPrev(); }
     touchStartX.current = null;
   };
 
