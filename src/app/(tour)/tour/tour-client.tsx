@@ -181,11 +181,11 @@ function Slide1({ isActive }: { isActive: boolean }) {
       </SlideBody>
 
       <div className="flex justify-between items-center w-full mb-3">
-        <span className="text-[10px] sm:text-xs font-bold tracking-widest uppercase px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20">
+        <span className="text-[10px] sm:text-xs font-bold tracking-widest uppercase px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
           ❌ <span className="hidden sm:inline">Without Kubeflow</span><span className="sm:hidden">Without</span>
         </span>
         <span className="text-text-muted text-xs hidden sm:block">tap a card to flip →</span>
-        <span className="text-[10px] sm:text-xs font-bold tracking-widest uppercase px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+        <span className="text-[10px] sm:text-xs font-bold tracking-widest uppercase px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20">
           ✅ With Kubeflow
         </span>
       </div>
@@ -213,8 +213,8 @@ function Slide1({ isActive }: { isActive: boolean }) {
                   style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", background: "rgba(255,69,58,0.07)", border: "1px solid rgba(255,69,58,0.25)" }}
                 >
                   <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-red-400/70">The Pain</span>
-                    <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-red-500/12 text-red-400/70">{card.problem.stat}</span>
+                    <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-red-600 dark:text-red-400/70">The Pain</span>
+                    <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-red-500/12 text-red-600 dark:text-red-400/70">{card.problem.stat}</span>
                   </div>
                   <div className="text-xl sm:text-2xl lg:text-3xl mb-1 sm:mb-2">{card.problem.icon}</div>
                   <p className="text-xs sm:text-sm lg:text-base font-medium text-text-secondary leading-snug">{card.problem.text}</p>
@@ -226,11 +226,11 @@ function Slide1({ isActive }: { isActive: boolean }) {
                   style={{ backfaceVisibility: "hidden", WebkitBackfaceVisibility: "hidden", transform: "rotateY(180deg)", background: "rgba(52,199,89,0.07)", border: "1px solid rgba(52,199,89,0.25)" }}
                 >
                   <div className="flex items-center justify-between mb-1.5 sm:mb-2">
-                    <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-green-400/70">With Kubeflow</span>
-                    <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-green-500/15 text-green-300">{card.solution.stat}</span>
+                    <span className="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-green-700 dark:text-green-400/70">With Kubeflow</span>
+                    <span className="text-[10px] sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 rounded-full bg-green-500/15 text-green-700 dark:text-green-300">{card.solution.stat}</span>
                   </div>
                   <div className="text-xl sm:text-2xl lg:text-3xl mb-1 sm:mb-2">{card.solution.icon}</div>
-                  <p className="text-xs sm:text-sm lg:text-base font-medium text-green-100/90 leading-snug">{card.solution.text}</p>
+                  <p className="text-xs sm:text-sm lg:text-base font-medium text-text-primary dark:text-green-100 leading-snug">{card.solution.text}</p>
                 </div>
               </div>
             </div>
@@ -241,7 +241,7 @@ function Slide1({ isActive }: { isActive: boolean }) {
       {allFlipped ? (
         <div className="flex items-center gap-2 sm:gap-3 mt-3 sm:mt-4 px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl bg-green-500/8 border border-green-500/20 w-full" style={{ animation: "tour-guide-slide-up 0.4s ease forwards" }}>
           <span className="text-lg sm:text-xl">🚀</span>
-          <p className="text-xs sm:text-sm lg:text-base text-green-300 font-medium text-left">
+          <p className="text-xs sm:text-sm lg:text-base text-green-700 dark:text-green-300 font-medium text-left">
             <strong className="text-text-primary">Kubeflow fixes all four.</strong> One platform — faster, collaborative, governed, and open source.
           </p>
         </div>
@@ -621,7 +621,7 @@ function Slide9() {
         </a>
       </div>
 
-      <p className="text-[#FF8A65]/60 text-xs mt-5 tracking-wide uppercase">
+      <p className="text-text-muted text-xs mt-5 tracking-wide uppercase">
         CNCF Incubating · Open Source · Community-driven
       </p>
     </div>
@@ -864,7 +864,7 @@ export function TourClient() {
       {/* Fullscreen toggle button */}
       <button
         onClick={toggleFullscreen}
-        className="absolute top-3 right-3 z-50 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-bg-secondary/80 hover:bg-bg-tertiary border border-border text-text-muted hover:text-text-primary transition-all text-xs font-medium backdrop-blur-sm"
+        className="absolute top-[3.25rem] right-3 z-50 flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-bg-secondary/80 hover:bg-bg-tertiary border border-border text-text-muted hover:text-text-primary transition-all text-xs font-medium backdrop-blur-sm"
         title={isFullscreen ? "Exit fullscreen (F)" : "Enter fullscreen (F)"}
       >
         {isFullscreen ? (

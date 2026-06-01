@@ -1,7 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Sun, Moon } from "lucide-react";
+import { useTheme } from "@/components/providers";
 
 export default function TourLayout({ children }: { children: React.ReactNode }) {
+  const { theme, setTheme } = useTheme();
+
   return (
     <>
       {/* Minimal top bar — fixed height so we can calc the remaining space */}
@@ -11,7 +16,7 @@ export default function TourLayout({ children }: { children: React.ReactNode }) 
             <span className="text-white font-bold text-[11px] tracking-tight">KF</span>
           </div>
           <span className="text-text-primary font-semibold text-sm group-hover:text-[var(--kf-blue)] transition-colors hidden sm:block">
-            Kubeflow
+            Kubeflow Commons Hub
           </span>
         </Link>
 
@@ -19,13 +24,23 @@ export default function TourLayout({ children }: { children: React.ReactNode }) 
           Interactive Tour
         </span>
 
-        <Link
-          href="/"
-          className="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-text-primary transition-colors"
-        >
-          <ArrowLeft className="size-3.5" />
-          Back to site
-        </Link>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors"
+            aria-label="Toggle theme"
+          >
+            <Sun className="size-[18px] hidden dark:block" />
+            <Moon className="size-[18px] dark:hidden" />
+          </button>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-xs font-medium text-text-muted hover:text-text-primary transition-colors px-2 py-1.5"
+          >
+            <ArrowLeft className="size-3.5" />
+            <span>Back</span>
+          </Link>
+        </div>
       </header>
 
       {/* Tour area fills viewport below the header using an inline style to avoid h-full cascade issues */}

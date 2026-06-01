@@ -60,9 +60,17 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${jetbrainsMono.variable} dark`}
+      className={`${inter.variable} ${jetbrainsMono.variable}`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Prevent flash of wrong theme on initial load */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem('theme')||'system';var r=t==='system'?window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light':t;document.documentElement.classList.add(r);}catch(e){}})();`,
+          }}
+        />
+      </head>
       <body className="min-h-dvh bg-bg-primary text-text-primary font-sans antialiased">
         <a href="#main-content" className="skip-to-content">
           Skip to content

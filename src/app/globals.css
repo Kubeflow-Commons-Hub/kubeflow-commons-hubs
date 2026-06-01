@@ -47,6 +47,16 @@
   --duration-base: 250ms;
   --duration-slow: 400ms;
 
+  /* Persona tag colors — darker for light-bg readability */
+  --persona-leader-bg: rgba(233, 30, 99, 0.15);
+  --persona-leader-color: #AD1457;
+  --persona-scientist-bg: rgba(76, 175, 80, 0.15);
+  --persona-scientist-color: #2E7D32;
+  --persona-mlops-bg: rgba(33, 150, 243, 0.15);
+  --persona-mlops-color: #1565C0;
+  --persona-admin-bg: rgba(255, 152, 0, 0.15);
+  --persona-admin-color: #E65100;
+
   /* Radius */
   --radius-sm: 6px;
   --radius-md: 8px;
@@ -75,6 +85,12 @@
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
   --shadow-glow: 0 0 30px rgba(37, 99, 235, 0.25);
+
+  /* Persona tag colors — light shades for dark bg */
+  --persona-leader-color: #F06292;
+  --persona-scientist-color: #81C784;
+  --persona-mlops-color: #64B5F6;
+  --persona-admin-color: #FFB74D;
 
 }
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Persona = "leader" | "scientist" | "mlops" | "admin";
@@ -52,8 +53,7 @@ function PanelTitle({
 }) {
   return (
     <div
-      className="flex items-center gap-2 text-sm font-bold mb-4 relative z-10"
-      style={{ color }}
+      className="flex items-center gap-2 text-sm font-bold text-text-primary mb-4 relative z-10"
     >
       <div
         className="w-1 h-5 rounded flex-shrink-0"
@@ -67,7 +67,7 @@ function PanelTitle({
 function CapBlock({ items }: { items: string[] }) {
   return (
     <div className="max-h-0 overflow-hidden opacity-0 group-hover:max-h-80 group-hover:opacity-100 transition-all duration-300 ease-in-out mt-0 group-hover:mt-3">
-      <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+      <div className="rounded-xl border border-border bg-bg-tertiary/40 p-3">
         <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-2">
           Key Capabilities
         </div>
@@ -95,23 +95,23 @@ function PersonaTag({
   const cfg = {
     leader: {
       label: "Business Leader",
-      bg: "rgba(233,30,99,0.2)",
-      color: "#F06292",
+      bg: "var(--persona-leader-bg)",
+      color: "var(--persona-leader-color)",
     },
     scientist: {
       label: "Data Scientist",
-      bg: "rgba(76,175,80,0.2)",
-      color: "#81C784",
+      bg: "var(--persona-scientist-bg)",
+      color: "var(--persona-scientist-color)",
     },
     mlops: {
       label: "MLOps",
-      bg: "rgba(33,150,243,0.2)",
-      color: "#64B5F6",
+      bg: "var(--persona-mlops-bg)",
+      color: "var(--persona-mlops-color)",
     },
     admin: {
       label: "Platform Admin",
-      bg: "rgba(255,152,0,0.2)",
-      color: "#FFB74D",
+      bg: "var(--persona-admin-bg)",
+      color: "var(--persona-admin-color)",
     },
   }[role];
   return (
@@ -126,7 +126,7 @@ function PersonaTag({
 
 function PoweredBy({ text }: { text: string }) {
   return (
-    <span className="inline-flex items-center gap-1 text-[10px] text-text-muted bg-white/[0.06] px-2 py-0.5 rounded border border-white/[0.08]">
+    <span className="inline-flex items-center gap-1 text-[10px] text-text-muted bg-bg-tertiary px-2 py-0.5 rounded border border-border">
       Powered by:{" "}
       <strong className="text-text-secondary font-semibold">{text}</strong>
     </span>
@@ -261,6 +261,17 @@ export function ArchitectureClient() {
 
   return (
     <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 py-10 pb-16">
+      {/* Back nav */}
+      <div className="mb-6">
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors group"
+        >
+          <ArrowLeft className="size-4 group-hover:-translate-x-0.5 transition-transform" />
+          Back to Kubeflow Commons Hub
+        </Link>
+      </div>
+
       {/* Page header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold mb-2">
@@ -368,7 +379,7 @@ export function ArchitectureClient() {
               ].map((phase, i) => (
                 <div
                   key={phase.num}
-                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] text-text-secondary border-l-[3px] hover:bg-white/[0.04] hover:text-text-primary transition-all"
+                  className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-[12px] text-text-secondary border-l-[3px] hover:bg-bg-tertiary hover:text-text-primary transition-all"
                   style={{
                     borderLeftColor: phase.color,
                     animation: `arch-fade-up 0.4s ease-out ${i * 0.1}s both`,
@@ -396,7 +407,7 @@ export function ArchitectureClient() {
                 >
                   🔀
                 </div>
-                <span className="text-blue-300/80">
+                <span className="text-text-secondary">
                   Pipelines orchestrate all phases
                 </span>
               </div>
@@ -421,7 +432,7 @@ export function ArchitectureClient() {
                   ping="#F57C00"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white mb-1.5">
+                  <div className="text-sm font-bold text-text-primary mb-1.5">
                     ⚙️ PREPARE YOUR DATA
                   </div>
                   <div className="text-[12px] text-text-secondary leading-relaxed">
@@ -432,7 +443,7 @@ export function ArchitectureClient() {
                   {/* Spark/Feast badges — revealed on hover */}
                   <div className="max-h-0 overflow-hidden opacity-0 group-hover:max-h-16 group-hover:opacity-100 transition-all duration-300 flex flex-wrap gap-2 group-hover:mt-2.5">
                     <span
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-white border"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-text-primary border"
                       style={{
                         background: "rgba(229,121,32,0.22)",
                         borderColor: "rgba(229,121,32,0.4)",
@@ -441,7 +452,7 @@ export function ArchitectureClient() {
                       ⚡ Apache Spark
                     </span>
                     <span
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-white border"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-[11px] font-semibold text-text-primary border"
                       style={{
                         background: "rgba(78,205,196,0.18)",
                         borderColor: "rgba(78,205,196,0.4)",
@@ -482,7 +493,7 @@ export function ArchitectureClient() {
                   delay="0.3s"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white mb-1.5">
+                  <div className="text-sm font-bold text-text-primary mb-1.5">
                     📓 EXPERIMENT WITHOUT LIMITS
                   </div>
                   <div className="text-[12px] text-text-secondary leading-relaxed">
@@ -526,7 +537,7 @@ export function ArchitectureClient() {
                   delay="0.6s"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white mb-1.5">
+                  <div className="text-sm font-bold text-text-primary mb-1.5">
                     🚀 TRAIN & OPTIMIZE YOUR AI MODELS
                   </div>
                   <div className="text-[12px] text-text-secondary leading-relaxed">
@@ -547,11 +558,11 @@ export function ArchitectureClient() {
                   <button
                     onClick={() => setFrameworksOpen((v) => !v)}
                     className={cn(
-                      "inline-flex items-center gap-1.5 mt-2.5 text-[11px] text-text-muted px-2.5 py-1 rounded-lg border border-white/[0.08] bg-white/[0.05] transition-all duration-200",
+                      "inline-flex items-center gap-1.5 mt-2.5 text-[11px] text-text-muted px-2.5 py-1 rounded-lg border border-border bg-bg-secondary transition-all duration-200",
                       "opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto",
                       frameworksOpen &&
-                        "!opacity-100 !pointer-events-auto border-[rgba(255,107,53,0.3)] bg-[rgba(255,107,53,0.1)] text-white",
-                      "hover:text-white hover:bg-[rgba(255,107,53,0.15)] hover:border-[rgba(255,107,53,0.3)]",
+                        "!opacity-100 !pointer-events-auto border-[rgba(255,107,53,0.3)] bg-[rgba(255,107,53,0.1)] text-text-primary",
+                      "hover:text-text-primary hover:bg-[rgba(255,107,53,0.15)] hover:border-[rgba(255,107,53,0.3)]",
                     )}
                   >
                     <span
@@ -563,7 +574,7 @@ export function ArchitectureClient() {
                       ▶
                     </span>
                     Supported Frameworks
-                    <span className="bg-white/10 px-1.5 py-px rounded-md text-[9px]">
+                    <span className="bg-bg-tertiary px-1.5 py-px rounded-md text-[9px]">
                       8
                     </span>
                   </button>
@@ -589,7 +600,7 @@ export function ArchitectureClient() {
                       ].map((fw) => (
                         <div
                           key={fw.label}
-                          className="flex flex-col items-center p-2 rounded-lg border border-white/10 text-[10px] font-semibold text-white cursor-pointer transition-all hover:-translate-y-0.5 bg-bg-primary/80"
+                          className="flex flex-col items-center p-2 rounded-lg border border-border text-[10px] font-semibold text-text-primary cursor-pointer transition-all hover:-translate-y-0.5 bg-bg-secondary"
                         >
                           <div
                             className="w-6 h-6 rounded-md flex items-center justify-center text-sm mb-1"
@@ -626,7 +637,7 @@ export function ArchitectureClient() {
                   delay="0.9s"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white mb-1.5">
+                  <div className="text-sm font-bold text-text-primary mb-1.5">
                     📦 GOVERN EVERY MODEL
                   </div>
                   <div className="text-[12px] text-text-secondary leading-relaxed">
@@ -666,7 +677,7 @@ export function ArchitectureClient() {
                   delay="1.2s"
                 />
                 <div className="flex-1 min-w-0">
-                  <div className="text-sm font-bold text-white mb-1.5">
+                  <div className="text-sm font-bold text-text-primary mb-1.5">
                     🌐 DEPLOY TO PRODUCTION, INSTANTLY
                   </div>
                   <div className="text-[12px] text-text-secondary leading-relaxed">
@@ -711,15 +722,14 @@ export function ArchitectureClient() {
                 <div className="text-2xl flex-shrink-0 mt-0.5">🔀</div>
                 <div className="flex-1 min-w-0">
                   <div
-                    className="text-sm font-bold flex items-center gap-2 flex-wrap mb-1"
-                    style={{ color: "#64B5F6" }}
+                    className="text-sm font-bold flex items-center gap-2 flex-wrap mb-1 text-text-primary"
                   >
                     AUTOMATE THE ENTIRE AI LIFECYCLE
                     <span
                       className="text-[9px] px-2 py-px rounded-full font-semibold"
                       style={{
-                        background: "rgba(25,118,210,0.35)",
-                        color: "#90CAF9",
+                        background: "rgba(25,118,210,0.15)",
+                        color: "var(--kf-blue)",
                       }}
                     >
                       ORCHESTRATOR
@@ -731,7 +741,7 @@ export function ArchitectureClient() {
                     for every execution.
                   </div>
                   <div className="max-h-0 overflow-hidden opacity-0 group-hover:max-h-72 group-hover:opacity-100 transition-all duration-300 ease-in-out mt-0 group-hover:mt-3">
-                    <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+                    <div className="rounded-xl border border-border bg-bg-tertiary/40 p-3">
                       <div className="text-[10px] font-bold uppercase tracking-widest text-text-muted mb-2">
                         Key Capabilities
                       </div>
