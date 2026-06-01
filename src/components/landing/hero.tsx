@@ -79,6 +79,15 @@ export function Hero() {
           >
             <Link href="/events">Explore Events</Link>
           </Button>
+          <Button
+            size="xl"
+            className="border border-white/15 text-blue-100 bg-white/5 hover:bg-white/10 backdrop-blur-sm rounded-xl transition-all"
+            asChild
+          >
+            <Link href="/tour">
+              🎬 Quick Tour
+            </Link>
+          </Button>
         </div>
       </div>
     </section>
