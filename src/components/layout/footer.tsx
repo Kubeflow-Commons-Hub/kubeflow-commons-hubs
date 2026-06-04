@@ -13,6 +13,7 @@ const footerLinks = {
   ],
   Resources: [
     { label: "About", href: "/about" },
+    { label: "Platform Overview", href: "/architecture" },
     { label: "Kubeflow Docs", href: "https://www.kubeflow.org/docs/", external: true },
     { label: "CNCF", href: "https://www.cncf.io/", external: true },
     { label: "Code of Conduct", href: "/about#code-of-conduct" },

@@ -12,7 +12,7 @@ interface ThemeContextValue {
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: "dark",
+  theme: "system",
   setTheme: () => {},
   resolvedTheme: "dark",
 });
@@ -23,7 +23,7 @@ export function useTheme() {
 
 function getInitialTheme(): Theme {
   if (typeof window === "undefined") return "dark";
-  return (localStorage.getItem("theme") as Theme) || "dark";
+  return (localStorage.getItem("theme") as Theme) || "system";
 }
 
 function getSystemTheme(): "light" | "dark" {
