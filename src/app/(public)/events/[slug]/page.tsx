@@ -8,12 +8,14 @@ import {
   ChevronRight,
   ExternalLink,
   Clock,
+  IdCard,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShareButton } from "@/components/common/share-button";
 import { EventCard } from "@/components/events/event-card";
 import { SITE_URL, EVENT_TIMEZONE } from "@/lib/constants";
+import { ATTEND_CARD_PATH } from "@/lib/attend-card/constants";
 import { getEventBySlug, getRelatedEvents } from "@/lib/public/events";
 
 type EventType = "meetup" | "conference" | "workshop" | "hackathon" | "webinar";
@@ -101,6 +103,10 @@ export default async function EventDetailPage({ params }: PageProps) {
   const relatedEvents = await getRelatedEvents(slug);
   const startDate = new Date(event.eventDate);
   const type = event.type as EventType;
+  const showAttendCardCta =
+    type === "meetup" &&
+    event.status === "upcoming" &&
+    event.city?.toLowerCase() === "pune";
 
   return (
     <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
@@ -160,6 +166,14 @@ export default async function EventDetailPage({ params }: PageProps) {
               <a href={event.rsvpUrl} target="_blank" rel="noopener noreferrer">
                 RSVP Now <ExternalLink className="size-4" />
               </a>
+            </Button>
+          )}
+          {showAttendCardCta && (
+            <Button variant="outline" asChild className="w-full attend-card-cta">
+              <Link href={ATTEND_CARD_PATH}>
+                <IdCard className="size-4" />
+                Create Attendee Card
+              </Link>
             </Button>
           )}
           <ShareButton />

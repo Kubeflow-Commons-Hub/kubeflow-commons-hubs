@@ -64,7 +64,7 @@ export function Footer() {
 
         {/* Bottom bar */}
         <div className="mt-12 pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-text-muted">
+          <p className="text-xs text-text-muted" suppressHydrationWarning>
             &copy; {new Date().getFullYear()} {SITE_NAME}. Open source under Apache 2.0 License.
           </p>
           <div className="flex items-center gap-4">
