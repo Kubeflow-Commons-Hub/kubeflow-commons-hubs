@@ -41,8 +41,10 @@ function downloadBlob(blob: Blob, fileName: string) {
   const link = document.createElement("a");
   link.download = fileName;
   link.href = url;
+  document.body.appendChild(link);
   link.click();
-  URL.revokeObjectURL(url);
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function sanitizeFileName(name: string) {
