@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, type Ref } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Download, User, Briefcase, Sparkles, RotateCcw } from "lucide-react";
+import { Upload, Download, User, Briefcase, RotateCcw } from "lucide-react";
 import {
   buildLinkedInFeedUrl,
   buildLinkedInShareText,
@@ -45,6 +45,11 @@ function downloadBlob(blob: Blob, fileName: string) {
   URL.revokeObjectURL(url);
 }
 
+function sanitizeFileName(name: string) {
+  const safe = name.trim().replace(/[^a-zA-Z0-9 _-]/g, "").replace(/\s+/g, "-");
+  return safe || "attendee";
+}
+
 export default function AttendCardClient() {
   const [name, setName] = useState("");
   const [title, setTitle] = useState("");
@@ -57,6 +62,11 @@ export default function AttendCardClient() {
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
       if (!file) return;
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Please choose an image under 5 MB.");
+        e.target.value = "";
+        return;
+      }
       const reader = new FileReader();
       reader.onload = (ev) => setPhotoUrl(ev.target?.result as string);
       reader.readAsDataURL(file);
@@ -69,7 +79,7 @@ export default function AttendCardClient() {
     setIsExporting(true);
     try {
       const blob = await exportCardToBlob(cardRef.current);
-      downloadBlob(blob, `${name.trim()}-kubeflow-card.png`);
+      downloadBlob(blob, `${sanitizeFileName(name)}-kubeflow-card.png`);
     } catch (err) {
       console.error("Export failed:", err);
     } finally {
@@ -152,7 +162,15 @@ export default function AttendCardClient() {
                   Your Photo
                 </label>
                 <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
                   className="relative group cursor-pointer rounded-xl border-2 border-dashed border-border-strong hover:border-[var(--kf-blue)]/40 transition-colors bg-bg-primary p-6 flex flex-col items-center gap-3"
                 >
                   {photoUrl ? (
@@ -295,16 +313,14 @@ export default function AttendCardClient() {
 
 /* ─── The downloadable card ─────────────────────────── */
 
-import { forwardRef } from "react";
-
 interface AttendeeCardProps {
+  ref?: Ref<HTMLDivElement>;
   name: string;
   title: string;
   photoUrl: string | null;
 }
 
-const AttendeeCard = forwardRef<HTMLDivElement, AttendeeCardProps>(
-  function AttendeeCard({ name, title, photoUrl }, ref) {
+function AttendeeCard({ ref, name, title, photoUrl }: AttendeeCardProps) {
     return (
       <div
         ref={ref}
@@ -323,7 +339,7 @@ const AttendeeCard = forwardRef<HTMLDivElement, AttendeeCardProps>(
         <div
           className="absolute inset-0 opacity-[0.06] z-[1]"
           style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,0.4) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,0.4) 1.5px, transparent 1.5px) blur(1px)`,
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.4) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,0.4) 1.5px, transparent 1.5px)`,
             backgroundSize: "60px 60px",
           }}
         />
@@ -403,11 +419,11 @@ const AttendeeCard = forwardRef<HTMLDivElement, AttendeeCardProps>(
             style={{ color: "#ffde59" }}
           >
             <span className="flex items-center gap-1">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="opacity-80"><path d="M4 0a1 1 0 0 0-1 1v1H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-1V1a1 1 0 0 0-2 0v1H5V1a1 1 0 0 0-1-1zm0 5h8a.5.5 0 0 1 0 1H4a.5.5 0 0 1 0-1z"/></svg>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="opacity-80" aria-hidden="true"><path d="M4 0a1 1 0 0 0-1 1v1H2a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2h-1V1a1 1 0 0 0-2 0v1H5V1a1 1 0 0 0-1-1zm0 5h8a.5.5 0 0 1 0 1H4a.5.5 0 0 1 0-1z"/></svg>
               13th June, 2026
             </span>
             <span className="flex items-center gap-1">
-              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="opacity-80"><path d="M8 0a5 5 0 0 0-5 5c0 4.5 5 11 5 11s5-6.5 5-11a5 5 0 0 0-5-5zm0 7.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor" className="opacity-80" aria-hidden="true"><path d="M8 0a5 5 0 0 0-5 5c0 4.5 5 11 5 11s5-6.5 5-11a5 5 0 0 0-5-5zm0 7.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
               Red Hat Tower 6, Pune
             </span>
           </div>
@@ -421,5 +437,4 @@ const AttendeeCard = forwardRef<HTMLDivElement, AttendeeCardProps>(
         </div>
       </div>
     );
-  }
-);
+}
