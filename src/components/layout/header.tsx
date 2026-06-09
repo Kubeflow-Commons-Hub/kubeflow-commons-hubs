@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import { Menu, X, Search, Sun, Moon, LogOut, Settings, User, Shield } from "lucide-react";
 import { useTheme } from "@/components/providers";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
@@ -34,6 +34,18 @@ function Logo({ overDark }: { overDark?: boolean }) {
 }
 
 const ADMIN_ROLES = new Set(["moderator", "admin", "superadmin"]);
+
+function subscribeNoop() {
+  return () => {};
+}
+
+function getClientMountedSnapshot() {
+  return true;
+}
+
+function getServerMountedSnapshot() {
+  return false;
+}
 
 function UserMenu({ avatarUrl, name, username, role }: { avatarUrl?: string | null; name?: string; username?: string; role?: string }) {
   const isAdmin = role ? ADMIN_ROLES.has(role) : false;
@@ -112,6 +124,11 @@ export function Header() {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const mounted = useSyncExternalStore(
+    subscribeNoop,
+    getClientMountedSnapshot,
+    getServerMountedSnapshot
+  );
   const { user, userRole, isLoading } = useAuth();
 
   const { setTheme, resolvedTheme } = useTheme();
@@ -192,8 +209,15 @@ export function Header() {
             )}
             aria-label="Toggle theme"
           >
-            <Sun className="size-[18px] hidden dark:block" />
-            <Moon className="size-[18px] dark:hidden" />
+            {mounted ? (
+              resolvedTheme === "dark" ? (
+                <Sun className="size-[18px]" />
+              ) : (
+                <Moon className="size-[18px]" />
+              )
+            ) : (
+              <span className="size-[18px]" aria-hidden />
+            )}
           </button>
 
           {!isLoading && (
@@ -318,9 +342,16 @@ export function Header() {
               className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium text-text-muted hover:text-text-primary hover:bg-bg-tertiary transition-colors w-full"
               aria-label="Toggle theme"
             >
-              <Sun className="size-4 hidden dark:block" />
-              <Moon className="size-4 dark:hidden" />
-              {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
+              {mounted ? (
+                resolvedTheme === "dark" ? (
+                  <Sun className="size-4" />
+                ) : (
+                  <Moon className="size-4" />
+                )
+              ) : (
+                <span className="size-4" aria-hidden />
+              )}
+              {mounted ? (resolvedTheme === "dark" ? "Light Mode" : "Dark Mode") : "Theme"}
             </button>
 
             <div className="border-t border-border my-2" />

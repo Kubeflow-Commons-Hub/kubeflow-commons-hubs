@@ -1,5 +1,7 @@
 const EVENT_NAME = "Kubeflow Commons Hub Meetup";
 
+export const ATTEND_CARD_PATH = "/attend-card";
+
 const LINKEDIN_HASHTAGS = "#redhat #kubeflow #IBM #MLops";
 
 export function buildLinkedInShareText() {

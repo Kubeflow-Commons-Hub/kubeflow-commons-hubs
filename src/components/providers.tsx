@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef, createContext, useContext, useCallback } from "react";
+import {
+  useState,
+  useEffect,
+  useSyncExternalStore,
+  createContext,
+  useContext,
+  useCallback,
+} from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 type Theme = "light" | "dark" | "system";
@@ -21,13 +28,10 @@ export function useTheme() {
   return useContext(ThemeContext);
 }
 
-function getInitialTheme(): Theme {
-  if (typeof window === "undefined") return "dark";
-  return (localStorage.getItem("theme") as Theme) || "system";
-}
+const THEME_KEY = "theme";
+const THEME_EVENT = "theme-change";
 
 function getSystemTheme(): "light" | "dark" {
-  if (typeof window === "undefined") return "dark";
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
@@ -41,36 +45,52 @@ function applyTheme(resolved: "light" | "dark") {
   document.documentElement.classList.add(resolved);
 }
 
+function subscribeTheme(callback: () => void) {
+  window.addEventListener(THEME_EVENT, callback);
+  const mq = window.matchMedia("(prefers-color-scheme: dark)");
+  mq.addEventListener("change", callback);
+  return () => {
+    window.removeEventListener(THEME_EVENT, callback);
+    mq.removeEventListener("change", callback);
+  };
+}
+
+function getThemePreferenceSnapshot(): Theme {
+  return (localStorage.getItem(THEME_KEY) as Theme) || "system";
+}
+
+function getThemePreferenceServerSnapshot(): Theme {
+  return "system";
+}
+
+function getResolvedThemeSnapshot(): "light" | "dark" {
+  return resolveTheme(getThemePreferenceSnapshot());
+}
+
+function getResolvedThemeServerSnapshot(): "light" | "dark" {
+  return "dark";
+}
+
 function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
-  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() => resolveTheme(getInitialTheme()));
-  const initialized = useRef(false);
+  const theme = useSyncExternalStore(
+    subscribeTheme,
+    getThemePreferenceSnapshot,
+    getThemePreferenceServerSnapshot
+  );
+  const resolvedTheme = useSyncExternalStore(
+    subscribeTheme,
+    getResolvedThemeSnapshot,
+    getResolvedThemeServerSnapshot
+  );
 
   useEffect(() => {
-    if (!initialized.current) {
-      initialized.current = true;
-      applyTheme(resolvedTheme);
-    }
-  });
-
-  useEffect(() => {
-    if (theme !== "system") return;
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = () => {
-      const resolved = getSystemTheme();
-      setResolvedTheme(resolved);
-      applyTheme(resolved);
-    };
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, [theme]);
+    applyTheme(resolvedTheme);
+  }, [resolvedTheme]);
 
   const setTheme = useCallback((newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem("theme", newTheme);
-    const resolved = resolveTheme(newTheme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(resolveTheme(newTheme));
+    window.dispatchEvent(new Event(THEME_EVENT));
   }, []);
 
   return (
