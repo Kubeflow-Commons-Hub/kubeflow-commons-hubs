@@ -8,6 +8,8 @@ import {
   newsPosts,
   cfps,
   activityLog,
+  surveys,
+  surveyQuestions,
 } from "./schema";
 
 const SEED_USERS = [
@@ -141,6 +143,129 @@ async function seed() {
     await db.insert(activityLog).values(activity).onConflictDoNothing();
   }
   console.log(`  ✓ ${activities.length} activity log entries`);
+
+  // Default survey
+  const SURVEY_ID = "00000000-0000-0000-0000-000000000100";
+  await db
+    .insert(surveys)
+    .values({
+      id: SURVEY_ID,
+      title: "Kubeflow Community Survey",
+      description:
+        "Help us understand the community better and shape future events and initiatives.",
+      status: "active",
+    })
+    .onConflictDoNothing();
+
+  const SURVEY_QUESTIONS = [
+    {
+      id: "00000000-0000-0000-0000-000000000101",
+      surveyId: SURVEY_ID,
+      questionText: "Full Name",
+      questionType: "short_text" as const,
+      isRequired: true,
+      sortOrder: 0,
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000102",
+      surveyId: SURVEY_ID,
+      questionText: "Email Address",
+      questionType: "short_text" as const,
+      isRequired: true,
+      sortOrder: 1,
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000103",
+      surveyId: SURVEY_ID,
+      questionText: "What best describes your primary role?",
+      questionType: "single_choice" as const,
+      options: [
+        "ML Engineer / MLOps Engineer",
+        "Data Scientist",
+        "DevOps / Platform / Infrastructure Engineer",
+        "Software Architect / Developer",
+        "Student / Beginner / Other",
+      ],
+      isRequired: true,
+      sortOrder: 2,
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000104",
+      surveyId: SURVEY_ID,
+      questionText: "Where are you currently in your Kubeflow journey?",
+      questionType: "single_choice" as const,
+      options: [
+        "Just exploring / Want to learn",
+        "Running experiments / Development phase",
+        "Running Kubeflow in Production",
+        "Active contributor to Kubeflow repositories",
+      ],
+      isRequired: true,
+      sortOrder: 3,
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000105",
+      surveyId: SURVEY_ID,
+      questionText:
+        "Which Kubeflow components are most critical to your workflow? (Select up to 3)",
+      questionType: "multi_choice" as const,
+      options: [
+        "Pipelines (KFP)",
+        "Notebooks",
+        "AutoML (Katib)",
+        "Model Serving (KServe)",
+        "Distributed Training Operators",
+        "None yet",
+      ],
+      isRequired: true,
+      sortOrder: 4,
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000106",
+      surveyId: SURVEY_ID,
+      questionText:
+        "What is the biggest hurdle you face when using or trying to adopt Kubeflow?",
+      questionType: "single_choice" as const,
+      options: [
+        "Complex installation and upgrades (e.g., Kustomize vs. Helm)",
+        "Lack of beginner-friendly documentation or end-to-end tutorials",
+        "Heavy resource/infrastructure requirements",
+        "Missing features (e.g., Model monitoring, MLflow integration)",
+        "Other",
+      ],
+      isRequired: true,
+      sortOrder: 5,
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000107",
+      surveyId: SURVEY_ID,
+      questionText:
+        'How can the "Kubeflow Common Hubs" community platform best support you?',
+      questionType: "multi_choice" as const,
+      options: [
+        "Local meetups and hands-on workshops",
+        'Curated "Good First Issues" to help me start contributing',
+        "The badge/gamification system to track my open-source journey",
+        "Networking with other ML/DevOps professionals in India",
+      ],
+      isRequired: true,
+      sortOrder: 6,
+    },
+    {
+      id: "00000000-0000-0000-0000-000000000108",
+      surveyId: SURVEY_ID,
+      questionText:
+        "(Optional) What is one topic you'd love to see covered at a future meetup?",
+      questionType: "long_text" as const,
+      isRequired: false,
+      sortOrder: 7,
+    },
+  ];
+
+  for (const q of SURVEY_QUESTIONS) {
+    await db.insert(surveyQuestions).values(q).onConflictDoNothing();
+  }
+  console.log(`  ✓ 1 survey with ${SURVEY_QUESTIONS.length} questions`);
 
   console.log("\nSeed complete!");
   process.exit(0);
