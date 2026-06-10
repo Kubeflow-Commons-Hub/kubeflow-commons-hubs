@@ -167,19 +167,43 @@ export async function updateSurvey(id: string, input: CreateSurveyInput) {
     })
     .where(eq(surveys.id, parsedId.data));
 
-  await db.delete(surveyQuestions).where(eq(surveyQuestions.surveyId, parsedId.data));
+  const existingQuestions = await db
+    .select({ id: surveyQuestions.id })
+    .from(surveyQuestions)
+    .where(eq(surveyQuestions.surveyId, parsedId.data));
 
-  if (data.questions.length > 0) {
-    await db.insert(surveyQuestions).values(
-      data.questions.map((q, i) => ({
+  const incomingIds = new Set(data.questions.map((q) => q.id).filter(Boolean));
+  const idsToDelete = existingQuestions
+    .filter((existing) => !incomingIds.has(existing.id))
+    .map((existing) => existing.id);
+
+  if (idsToDelete.length > 0) {
+    for (const qid of idsToDelete) {
+      await db.delete(surveyQuestions).where(eq(surveyQuestions.id, qid));
+    }
+  }
+
+  for (let i = 0; i < data.questions.length; i++) {
+    const q = data.questions[i];
+    const values = {
+      questionText: q.questionText,
+      questionType: q.questionType,
+      options: q.options?.length ? q.options : null,
+      isRequired: q.isRequired,
+      sortOrder: i,
+    };
+
+    if (q.id && incomingIds.has(q.id)) {
+      await db
+        .update(surveyQuestions)
+        .set(values)
+        .where(eq(surveyQuestions.id, q.id));
+    } else {
+      await db.insert(surveyQuestions).values({
         surveyId: parsedId.data,
-        questionText: q.questionText,
-        questionType: q.questionType,
-        options: q.options?.length ? q.options : null,
-        isRequired: q.isRequired,
-        sortOrder: i,
-      }))
-    );
+        ...values,
+      });
+    }
   }
 
   logAuditAsync({

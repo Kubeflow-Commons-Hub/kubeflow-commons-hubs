@@ -37,6 +37,7 @@ export default async function EditSurveyPage({ params }: Props) {
     opensAt: survey.opensAt?.toISOString().slice(0, 16) ?? "",
     closesAt: survey.closesAt?.toISOString().slice(0, 16) ?? "",
     questions: survey.questions.map((q) => ({
+      id: q.id,
       questionText: q.questionText,
       questionType: q.questionType as "short_text" | "long_text" | "single_choice" | "multi_choice",
       options: (q.options as string[] | null) ?? [],

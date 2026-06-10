@@ -1,12 +1,21 @@
 import { z } from "zod";
 
 const questionSchema = z.object({
+  id: z.string().uuid().optional(),
   questionText: z.string().min(1, "Question text is required").max(500),
   questionType: z.enum(["short_text", "long_text", "single_choice", "multi_choice"]),
   options: z.array(z.string().min(1)).optional(),
   isRequired: z.boolean().default(true),
   sortOrder: z.number().int().min(0).default(0),
-});
+}).refine(
+  (q) => {
+    if (q.questionType === "single_choice" || q.questionType === "multi_choice") {
+      return q.options && q.options.length > 0;
+    }
+    return true;
+  },
+  { message: "Choice questions must have at least one option" }
+);
 
 export const createSurveySchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters").max(200),

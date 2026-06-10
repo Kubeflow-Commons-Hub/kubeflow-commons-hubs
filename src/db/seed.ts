@@ -159,6 +159,7 @@ async function seed() {
 
   const SURVEY_QUESTIONS = [
     {
+      id: "00000000-0000-0000-0000-000000000101",
       surveyId: SURVEY_ID,
       questionText: "Full Name",
       questionType: "short_text" as const,
@@ -166,6 +167,7 @@ async function seed() {
       sortOrder: 0,
     },
     {
+      id: "00000000-0000-0000-0000-000000000102",
       surveyId: SURVEY_ID,
       questionText: "Email Address",
       questionType: "short_text" as const,
@@ -173,6 +175,7 @@ async function seed() {
       sortOrder: 1,
     },
     {
+      id: "00000000-0000-0000-0000-000000000103",
       surveyId: SURVEY_ID,
       questionText: "What best describes your primary role?",
       questionType: "single_choice" as const,
@@ -187,6 +190,7 @@ async function seed() {
       sortOrder: 2,
     },
     {
+      id: "00000000-0000-0000-0000-000000000104",
       surveyId: SURVEY_ID,
       questionText: "Where are you currently in your Kubeflow journey?",
       questionType: "single_choice" as const,
@@ -200,6 +204,7 @@ async function seed() {
       sortOrder: 3,
     },
     {
+      id: "00000000-0000-0000-0000-000000000105",
       surveyId: SURVEY_ID,
       questionText:
         "Which Kubeflow components are most critical to your workflow? (Select up to 3)",
@@ -216,6 +221,7 @@ async function seed() {
       sortOrder: 4,
     },
     {
+      id: "00000000-0000-0000-0000-000000000106",
       surveyId: SURVEY_ID,
       questionText:
         "What is the biggest hurdle you face when using or trying to adopt Kubeflow?",
@@ -231,6 +237,7 @@ async function seed() {
       sortOrder: 5,
     },
     {
+      id: "00000000-0000-0000-0000-000000000107",
       surveyId: SURVEY_ID,
       questionText:
         'How can the "Kubeflow Common Hubs" community platform best support you?',
@@ -245,6 +252,7 @@ async function seed() {
       sortOrder: 6,
     },
     {
+      id: "00000000-0000-0000-0000-000000000108",
       surveyId: SURVEY_ID,
       questionText:
         "(Optional) What is one topic you'd love to see covered at a future meetup?",

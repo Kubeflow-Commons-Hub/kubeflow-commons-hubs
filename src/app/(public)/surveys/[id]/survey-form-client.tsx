@@ -84,77 +84,95 @@ export function SurveyFormClient({ surveyId, questions }: Props) {
           key={q.id}
           className="rounded-xl border border-border bg-bg-secondary p-5 space-y-3"
         >
-          <p className="font-medium text-text-primary">
-            <span className="text-text-muted mr-2">{i + 1}.</span>
-            {q.questionText}
-            {q.isRequired && <span className="text-red-400 ml-1">*</span>}
-          </p>
+          {(q.questionType === "single_choice" || q.questionType === "multi_choice") ? (
+            <fieldset>
+              <legend className="font-medium text-text-primary">
+                <span className="text-text-muted mr-2">{i + 1}.</span>
+                {q.questionText}
+                {q.isRequired && <span className="text-red-400 ml-1" aria-hidden="true">*</span>}
+                {q.isRequired && <span className="sr-only"> (required)</span>}
+              </legend>
 
-          {q.questionType === "short_text" && (
-            <input
-              type="text"
-              value={(answers[q.id] as string) ?? ""}
-              onChange={(e) => setAnswer(q.id, e.target.value)}
-              className="form-input"
-              placeholder="Your answer"
-              required={q.isRequired}
-            />
-          )}
+              {q.questionType === "single_choice" && (
+                <div className="space-y-2 mt-3" role="radiogroup" aria-required={q.isRequired}>
+                  {q.options.map((opt) => (
+                    <label
+                      key={opt}
+                      className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-bg-tertiary/50 cursor-pointer transition-colors"
+                    >
+                      <input
+                        type="radio"
+                        name={q.id}
+                        value={opt}
+                        checked={(answers[q.id] as string) === opt}
+                        onChange={() => setAnswer(q.id, opt)}
+                        className="accent-[var(--kf-blue)]"
+                        required={q.isRequired}
+                      />
+                      <span className="text-sm text-text-secondary">{opt}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
 
-          {q.questionType === "long_text" && (
-            <textarea
-              value={(answers[q.id] as string) ?? ""}
-              onChange={(e) => setAnswer(q.id, e.target.value)}
-              className="form-input min-h-[100px] resize-y"
-              placeholder="Your answer"
-              required={q.isRequired}
-            />
-          )}
+              {q.questionType === "multi_choice" && (
+                <div className="space-y-2 mt-3" role="group">
+                  {q.options.map((opt) => {
+                    const selected = (
+                      (answers[q.id] as string[] | undefined) ?? []
+                    ).includes(opt);
+                    return (
+                      <label
+                        key={opt}
+                        className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-bg-tertiary/50 cursor-pointer transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selected}
+                          onChange={() => toggleMultiChoice(q.id, opt)}
+                          className="rounded border-border accent-[var(--kf-blue)]"
+                        />
+                        <span className="text-sm text-text-secondary">{opt}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+            </fieldset>
+          ) : (
+            <>
+              <label htmlFor={`q-${q.id}`} className="font-medium text-text-primary">
+                <span className="text-text-muted mr-2">{i + 1}.</span>
+                {q.questionText}
+                {q.isRequired && <span className="text-red-400 ml-1" aria-hidden="true">*</span>}
+                {q.isRequired && <span className="sr-only"> (required)</span>}
+              </label>
 
-          {q.questionType === "single_choice" && (
-            <div className="space-y-2">
-              {q.options.map((opt) => (
-                <label
-                  key={opt}
-                  className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-bg-tertiary/50 cursor-pointer transition-colors"
-                >
-                  <input
-                    type="radio"
-                    name={q.id}
-                    value={opt}
-                    checked={(answers[q.id] as string) === opt}
-                    onChange={() => setAnswer(q.id, opt)}
-                    className="accent-[var(--kf-blue)]"
-                    required={q.isRequired}
-                  />
-                  <span className="text-sm text-text-secondary">{opt}</span>
-                </label>
-              ))}
-            </div>
-          )}
+              {q.questionType === "short_text" && (
+                <input
+                  id={`q-${q.id}`}
+                  type="text"
+                  value={(answers[q.id] as string) ?? ""}
+                  onChange={(e) => setAnswer(q.id, e.target.value)}
+                  className="form-input"
+                  placeholder="Your answer"
+                  required={q.isRequired}
+                  aria-required={q.isRequired}
+                />
+              )}
 
-          {q.questionType === "multi_choice" && (
-            <div className="space-y-2">
-              {q.options.map((opt) => {
-                const selected = (
-                  (answers[q.id] as string[] | undefined) ?? []
-                ).includes(opt);
-                return (
-                  <label
-                    key={opt}
-                    className="flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-bg-tertiary/50 cursor-pointer transition-colors"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selected}
-                      onChange={() => toggleMultiChoice(q.id, opt)}
-                      className="rounded border-border accent-[var(--kf-blue)]"
-                    />
-                    <span className="text-sm text-text-secondary">{opt}</span>
-                  </label>
-                );
-              })}
-            </div>
+              {q.questionType === "long_text" && (
+                <textarea
+                  id={`q-${q.id}`}
+                  value={(answers[q.id] as string) ?? ""}
+                  onChange={(e) => setAnswer(q.id, e.target.value)}
+                  className="form-input min-h-[100px] resize-y"
+                  placeholder="Your answer"
+                  required={q.isRequired}
+                  aria-required={q.isRequired}
+                />
+              )}
+            </>
           )}
         </div>
       ))}
