@@ -14,7 +14,14 @@ export async function getPublicSurvey(id: string) {
   if (!parsed.success) return null;
 
   const [survey] = await db
-    .select()
+    .select({
+      id: surveys.id,
+      title: surveys.title,
+      description: surveys.description,
+      status: surveys.status,
+      opensAt: surveys.opensAt,
+      closesAt: surveys.closesAt,
+    })
     .from(surveys)
     .where(and(eq(surveys.id, parsed.data), eq(surveys.status, "active")))
     .limit(1);
@@ -80,10 +87,20 @@ export async function submitSurveyResponse(input: SubmitSurveyInput) {
     .orderBy(surveyQuestions.sortOrder);
 
   for (const q of questions) {
+    const answer = answers[q.id];
     if (q.isRequired) {
-      const answer = answers[q.id];
       if (!answer || (Array.isArray(answer) && answer.length === 0) || answer === "") {
         return { error: `"${q.questionText}" is required` };
+      }
+    }
+
+    if (answer && q.options && (q.questionType === "single_choice" || q.questionType === "multi_choice")) {
+      const validOptions = q.options as string[];
+      const values = Array.isArray(answer) ? answer : [answer];
+      for (const v of values) {
+        if (!validOptions.includes(v)) {
+          return { error: `Invalid option for "${q.questionText}"` };
+        }
       }
     }
   }
