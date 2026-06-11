@@ -149,7 +149,8 @@ export function SurveyForm({
               We already have your response
             </p>
             <p className="mb-6 text-sm font-semibold text-text-secondary">
-              {alreadySubmitted.name} ({alreadySubmitted.email})
+              {alreadySubmitted.name}
+              {alreadySubmitted.email ? ` (${alreadySubmitted.email})` : ""}
             </p>
 
             <div className="flex flex-col gap-3">
@@ -312,11 +313,12 @@ export function SurveyForm({
 
               <div className="space-y-5">
                 <div>
-                  <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-text-muted uppercase">
+                  <label htmlFor="survey-name" className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-text-muted uppercase">
                     <User className="size-3.5" />
                     Full Name
                   </label>
                   <input
+                    id="survey-name"
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
@@ -326,11 +328,12 @@ export function SurveyForm({
                   />
                 </div>
                 <div>
-                  <label className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-text-muted uppercase">
+                  <label htmlFor="survey-email" className="mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-text-muted uppercase">
                     <Mail className="size-3.5" />
                     Email
                   </label>
                   <input
+                    id="survey-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

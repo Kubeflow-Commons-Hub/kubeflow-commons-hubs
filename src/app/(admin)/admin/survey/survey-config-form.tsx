@@ -84,7 +84,7 @@ export function SurveyConfigForm({ initialValues }: SurveyConfigFormProps) {
 
       {/* Custom link URL */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-text-primary">
+        <label htmlFor="survey-link-url" className="mb-1.5 block text-sm font-medium text-text-primary">
           Custom Link URL
         </label>
         <p className="mb-2 text-xs text-text-muted">
@@ -92,6 +92,7 @@ export function SurveyConfigForm({ initialValues }: SurveyConfigFormProps) {
           etc.
         </p>
         <input
+          id="survey-link-url"
           type="url"
           value={customLinkUrl}
           onChange={(e) => setCustomLinkUrl(e.target.value)}
@@ -102,10 +103,11 @@ export function SurveyConfigForm({ initialValues }: SurveyConfigFormProps) {
 
       {/* Custom link label */}
       <div>
-        <label className="mb-1.5 block text-sm font-medium text-text-primary">
+        <label htmlFor="survey-link-label" className="mb-1.5 block text-sm font-medium text-text-primary">
           Custom Link Label
         </label>
         <input
+          id="survey-link-label"
           type="text"
           value={customLinkLabel}
           onChange={(e) => setCustomLinkLabel(e.target.value)}

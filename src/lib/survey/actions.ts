@@ -31,15 +31,19 @@ export async function submitSurvey(input: SubmitSurveyInput) {
   }
   const data = parsed.data;
 
-  await db.insert(surveyResponses).values({
-    name: data.name,
-    email: data.email || null,
-    experienceType: data.experienceType,
-    experienceLevel: data.experienceLevel,
-    experienceValue: data.experienceValue,
-    answers: data.answers,
-    awarenessScore: data.awarenessScore,
-  });
+  try {
+    await db.insert(surveyResponses).values({
+      name: data.name,
+      email: data.email || null,
+      experienceType: data.experienceType,
+      experienceLevel: data.experienceLevel,
+      experienceValue: data.experienceValue,
+      answers: data.answers,
+      awarenessScore: data.awarenessScore,
+    });
+  } catch {
+    return { error: "Failed to save response. Please try again." };
+  }
 
   return { success: true };
 }
