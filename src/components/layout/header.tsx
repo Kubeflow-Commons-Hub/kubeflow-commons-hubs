@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { signOut } from "@/lib/auth/actions";
+import { isSurveyEnabled } from "@/lib/survey/actions";
 
 function Logo({ overDark }: { overDark?: boolean }) {
   return (
@@ -129,6 +130,7 @@ export function Header() {
     getClientMountedSnapshot,
     getServerMountedSnapshot
   );
+  const [surveyEnabled, setSurveyEnabled] = useState(false);
   const { user, userRole, isLoading } = useAuth();
 
   const { setTheme, resolvedTheme } = useTheme();
@@ -140,6 +142,10 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    isSurveyEnabled().then(setSurveyEnabled);
   }, []);
 
   return (
@@ -184,6 +190,26 @@ export function Header() {
               </Link>
             );
           })}
+          {surveyEnabled && (() => {
+            const isSurveyActive = pathname === "/survey";
+            return (
+              <Link
+                href="/survey"
+                className={cn(
+                  "px-3.5 py-1.5 rounded-full text-[13px] font-medium transition-all duration-200",
+                  showSolid
+                    ? isSurveyActive
+                      ? "text-text-primary bg-bg-secondary"
+                      : "text-text-muted hover:text-text-primary hover:bg-bg-secondary/50"
+                    : isSurveyActive
+                      ? "text-white bg-white/15"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
+                )}
+              >
+                Survey
+              </Link>
+            );
+          })()}
         </nav>
 
         {/* Desktop actions */}
@@ -298,6 +324,21 @@ export function Header() {
                 </Link>
               );
             })}
+
+            {surveyEnabled && (
+              <Link
+                href="/survey"
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "px-4 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                  pathname === "/survey"
+                    ? "text-text-primary bg-bg-tertiary"
+                    : "text-text-muted hover:text-text-primary hover:bg-bg-tertiary"
+                )}
+              >
+                Survey
+              </Link>
+            )}
 
             {user && (
               <>

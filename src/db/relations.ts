@@ -14,6 +14,7 @@ import {
   eventAttendees,
   newsPosts,
   auditLog,
+  surveyConfig,
 } from "./schema";
 
 export const usersRelations = relations(users, ({ one, many }) => ({
@@ -135,6 +136,13 @@ export const newsPostsRelations = relations(newsPosts, ({ one }) => ({
 export const auditLogRelations = relations(auditLog, ({ one }) => ({
   actor: one(users, {
     fields: [auditLog.actorId],
+    references: [users.id],
+  }),
+}));
+
+export const surveyConfigRelations = relations(surveyConfig, ({ one }) => ({
+  updater: one(users, {
+    fields: [surveyConfig.updatedBy],
     references: [users.id],
   }),
 }));
