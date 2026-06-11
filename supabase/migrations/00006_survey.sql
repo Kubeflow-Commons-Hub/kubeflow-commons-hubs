@@ -62,6 +62,6 @@ create policy "survey_responses_select_admin"
   );
 
 -- Seed a default config row (survey disabled by default)
-insert into survey_config (is_enabled, show_qr_code)
-values (false, true)
-on conflict do nothing;
+insert into survey_config (id, is_enabled, show_qr_code)
+values ('00000000-0000-0000-0000-000000000001', false, true)
+on conflict (id) do nothing;

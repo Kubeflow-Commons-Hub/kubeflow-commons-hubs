@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect, useSyncExternalStore } from "react";
+
 import { Menu, X, Search, Sun, Moon, LogOut, Settings, User, Shield } from "lucide-react";
 import { useTheme } from "@/components/providers";
 import { NAV_LINKS, SITE_NAME } from "@/lib/constants";
@@ -11,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 import { signOut } from "@/lib/auth/actions";
-import { isSurveyEnabled } from "@/lib/survey/actions";
 
 function Logo({ overDark }: { overDark?: boolean }) {
   return (
@@ -121,7 +121,7 @@ function UserMenu({ avatarUrl, name, username, role }: { avatarUrl?: string | nu
   );
 }
 
-export function Header() {
+export function Header({ surveyEnabled = false }: { surveyEnabled?: boolean }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -130,7 +130,6 @@ export function Header() {
     getClientMountedSnapshot,
     getServerMountedSnapshot
   );
-  const [surveyEnabled, setSurveyEnabled] = useState(false);
   const { user, userRole, isLoading } = useAuth();
 
   const { setTheme, resolvedTheme } = useTheme();
@@ -142,10 +141,6 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    isSurveyEnabled().then(setSurveyEnabled);
   }, []);
 
   return (

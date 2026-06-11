@@ -209,7 +209,7 @@ export function SurveyForm({
                       size={180}
                       level="M"
                       marginSize={2}
-                      fgColor="#1e293b"
+                      fgColor="#000000"
                     />
                   </div>
                 )}
