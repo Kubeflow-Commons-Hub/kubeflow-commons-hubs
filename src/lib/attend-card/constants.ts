@@ -1,19 +1,12 @@
-const EVENT_NAME = "Kubeflow Commons Hub Meetup";
-
 export const ATTEND_CARD_PATH = "/attend-card";
 
-const LINKEDIN_HASHTAGS = "#redhat #kubeflow #IBM #MLops";
-
 export function buildLinkedInShareText() {
-  return `Excited to share that I am attending the ${EVENT_NAME} in Pune.
+  return `Thrilled to be attending the Kubeflow Commons Hub Meetup in Pune!
 
-Looking forward to learning how practitioners are building, deploying, and operating agentic AI and MLOps in production, and to meet everyone.
+Looking forward to connecting with practitioners who are building, deploying, and operating agentic AI and MLOps systems in production.
+If you're attending too, let's connect!
 
-See you all there!
-
-<---add attendee card image here--->
-
-${LINKEDIN_HASHTAGS}`;
+#redhat #kubeflow #IBM #MLops #KubeflowCommons #AgenticAI #OpenSource #Kubernetes #CloudNative #Pune`;
 }
 
 export function buildLinkedInFeedUrl(text: string) {
