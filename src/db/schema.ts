@@ -7,6 +7,7 @@ import {
   boolean,
   integer,
   jsonb,
+  real,
   uniqueIndex,
   index,
 } from "drizzle-orm/pg-core";
@@ -375,6 +376,36 @@ export const auditLog = pgTable("audit_log", {
   ipAddress: text("ip_address"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+// ─── SURVEY CONFIG ──────────────────────────────────────
+export const surveyConfig = pgTable("survey_config", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  isEnabled: boolean("is_enabled").default(false).notNull(),
+  customLinkUrl: text("custom_link_url"),
+  customLinkLabel: text("custom_link_label"),
+  showQrCode: boolean("show_qr_code").default(true).notNull(),
+  updatedBy: uuid("updated_by").references(() => users.id),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// ─── SURVEY RESPONSES ───────────────────────────────────
+export const surveyResponses = pgTable(
+  "survey_responses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    email: text("email"),
+    experienceType: text("experience_type").notNull(),
+    experienceLevel: text("experience_level").notNull(),
+    experienceValue: real("experience_value").notNull(),
+    answers: jsonb("answers").$type<Record<string, boolean>>().default({}).notNull(),
+    awarenessScore: integer("awareness_score").default(0).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [
+    index("survey_responses_created_idx").on(table.createdAt),
+  ]
+);
 
 // ─── NOTIFICATIONS ──────────────────────────────────────
 export const notifications = pgTable(
