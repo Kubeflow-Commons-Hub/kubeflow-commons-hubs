@@ -12,6 +12,7 @@ import {
   Users,
   Award,
   ScrollText,
+  ClipboardList,
   ChevronLeft,
   ChevronRight,
   Menu,
@@ -56,6 +57,7 @@ const NAV_SECTIONS: NavSection[] = [
     items: [
       { label: "Users", href: "/admin/users", icon: Users },
       { label: "Badges", href: "/admin/badges", icon: Award },
+      { label: "Survey", href: "/admin/survey", icon: ClipboardList },
     ],
   },
   {
