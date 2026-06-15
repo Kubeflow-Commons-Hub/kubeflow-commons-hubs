@@ -384,6 +384,7 @@ export const surveyConfig = pgTable("survey_config", {
   customLinkUrl: text("custom_link_url"),
   customLinkLabel: text("custom_link_label"),
   showQrCode: boolean("show_qr_code").default(true).notNull(),
+  showGraph: boolean("show_graph").default(false).notNull(),
   updatedBy: uuid("updated_by").references(() => users.id),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });

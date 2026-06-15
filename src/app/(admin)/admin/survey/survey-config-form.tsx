@@ -11,6 +11,7 @@ interface SurveyConfigFormProps {
     customLinkUrl: string;
     customLinkLabel: string;
     showQrCode: boolean;
+    showGraph: boolean;
   };
 }
 
@@ -24,6 +25,9 @@ export function SurveyConfigForm({ initialValues }: SurveyConfigFormProps) {
   );
   const [showQrCode, setShowQrCode] = useState(
     initialValues?.showQrCode ?? true
+  );
+  const [showGraph, setShowGraph] = useState(
+    initialValues?.showGraph ?? false
   );
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{
@@ -41,6 +45,7 @@ export function SurveyConfigForm({ initialValues }: SurveyConfigFormProps) {
         customLinkUrl: customLinkUrl || undefined,
         customLinkLabel: customLinkLabel || undefined,
         showQrCode,
+        showGraph,
       });
 
       if (result.error) {
@@ -140,6 +145,36 @@ export function SurveyConfigForm({ initialValues }: SurveyConfigFormProps) {
             className={cn(
               "pointer-events-none inline-block size-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200",
               showQrCode ? "translate-x-5" : "translate-x-0"
+            )}
+          />
+        </button>
+      </div>
+
+      {/* Graph toggle */}
+      <div className="flex items-center justify-between rounded-lg border border-border bg-bg-primary p-4">
+        <div>
+          <p className="text-sm font-semibold text-text-primary">
+            Show Quadrant Graph
+          </p>
+          <p className="text-xs text-text-muted">
+            Adds a &quot;View Graph&quot; button on the public survey page so
+            participants can see aggregated responses
+          </p>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={showGraph}
+          onClick={() => setShowGraph(!showGraph)}
+          className={cn(
+            "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200",
+            showGraph ? "bg-[var(--kf-blue)]" : "bg-text-muted/30"
+          )}
+        >
+          <span
+            className={cn(
+              "pointer-events-none inline-block size-5 rounded-full bg-white shadow-sm ring-0 transition-transform duration-200",
+              showGraph ? "translate-x-5" : "translate-x-0"
             )}
           />
         </button>

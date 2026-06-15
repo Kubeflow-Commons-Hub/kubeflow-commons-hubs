@@ -2,7 +2,9 @@
 
 import { db } from "@/db";
 import { surveyConfig, surveyResponses } from "@/db/schema";
+import { desc } from "drizzle-orm";
 import { submitSurveySchema, type SubmitSurveyInput } from "@/lib/validations/survey";
+import type { SurveyGraphPoint } from "@/lib/survey/graph";
 
 export async function getSurveyConfig() {
   try {
@@ -46,4 +48,31 @@ export async function submitSurvey(input: SubmitSurveyInput) {
   }
 
   return { success: true };
+}
+
+export type { SurveyGraphPoint } from "@/lib/survey/graph";
+
+export async function getPublicSurveyGraphData(): Promise<{
+  data: SurveyGraphPoint[] | null;
+  error?: string;
+}> {
+  const config = await getSurveyConfig();
+  if (!config?.isEnabled || !config.showGraph) {
+    return { data: null, error: "Graph is not available" };
+  }
+
+  try {
+    const rows = await db
+      .select({
+        name: surveyResponses.name,
+        experienceValue: surveyResponses.experienceValue,
+        awarenessScore: surveyResponses.awarenessScore,
+      })
+      .from(surveyResponses)
+      .orderBy(desc(surveyResponses.createdAt));
+
+    return { data: rows.map((r) => ({ ...r, email: null })) };
+  } catch {
+    return { data: null, error: "Failed to load graph data" };
+  }
 }

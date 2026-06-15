@@ -10,6 +10,7 @@ import {
   updateSurveyConfigSchema,
   type UpdateSurveyConfigInput,
 } from "@/lib/validations/survey";
+import type { SurveyGraphPoint } from "@/lib/survey/graph";
 
 export async function getAdminSurveyConfig() {
   await requireRole("moderator");
@@ -41,6 +42,7 @@ export async function updateSurveyConfig(input: UpdateSurveyConfigInput) {
           customLinkUrl: data.customLinkUrl || null,
           customLinkLabel: data.customLinkLabel || null,
           showQrCode: data.showQrCode,
+          showGraph: data.showGraph,
           updatedBy: actor.id,
           updatedAt: new Date(),
         })
@@ -55,11 +57,13 @@ export async function updateSurveyConfig(input: UpdateSurveyConfigInput) {
           isEnabled: existing.isEnabled,
           customLinkUrl: existing.customLinkUrl,
           showQrCode: existing.showQrCode,
+          showGraph: existing.showGraph,
         },
         newValues: {
           isEnabled: data.isEnabled,
           customLinkUrl: data.customLinkUrl,
           showQrCode: data.showQrCode,
+          showGraph: data.showGraph,
         },
       });
     } else {
@@ -70,6 +74,7 @@ export async function updateSurveyConfig(input: UpdateSurveyConfigInput) {
           customLinkUrl: data.customLinkUrl || null,
           customLinkLabel: data.customLinkLabel || null,
           showQrCode: data.showQrCode,
+          showGraph: data.showGraph,
           updatedBy: actor.id,
         })
         .returning({ id: surveyConfig.id });
@@ -83,6 +88,7 @@ export async function updateSurveyConfig(input: UpdateSurveyConfigInput) {
           isEnabled: data.isEnabled,
           customLinkUrl: data.customLinkUrl,
           showQrCode: data.showQrCode,
+          showGraph: data.showGraph,
         },
       });
     }
@@ -92,7 +98,28 @@ export async function updateSurveyConfig(input: UpdateSurveyConfigInput) {
 
   revalidatePath("/admin/survey");
   revalidatePath("/survey");
+  revalidatePath("/survey/graph");
   return { success: true };
+}
+
+export async function getSurveyGraphData(): Promise<SurveyGraphPoint[]> {
+  await requireRole("moderator");
+
+  try {
+    const rows = await db
+      .select({
+        name: surveyResponses.name,
+        email: surveyResponses.email,
+        experienceValue: surveyResponses.experienceValue,
+        awarenessScore: surveyResponses.awarenessScore,
+      })
+      .from(surveyResponses)
+      .orderBy(desc(surveyResponses.createdAt));
+
+    return rows;
+  } catch {
+    return [];
+  }
 }
 
 interface ListResponsesParams {
