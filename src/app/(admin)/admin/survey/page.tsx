@@ -1,16 +1,18 @@
-import { getAdminSurveyConfig, getSurveyStats, listSurveyResponses } from "@/lib/admin/survey";
+import { getAdminSurveyConfig, getSurveyGraphData, getSurveyStats, listSurveyResponses } from "@/lib/admin/survey";
 import { SurveyConfigForm } from "./survey-config-form";
 import { SurveyResponsesTable } from "./survey-responses-table";
+import { AdminSurveyGraph } from "./admin-survey-graph";
 
 export const metadata = {
   title: "Survey Management | Admin",
 };
 
 export default async function AdminSurveyPage() {
-  const [config, stats, { rows, totalCount }] = await Promise.all([
+  const [config, stats, { rows, totalCount }, graphData] = await Promise.all([
     getAdminSurveyConfig(),
     getSurveyStats(),
     listSurveyResponses(),
+    getSurveyGraphData(),
   ]);
 
   return (
@@ -25,7 +27,7 @@ export default async function AdminSurveyPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-border bg-bg-secondary p-5">
           <p className="text-sm font-medium text-text-muted">Status</p>
           <div className="mt-1 flex items-center gap-2">
@@ -44,10 +46,15 @@ export default async function AdminSurveyPage() {
           </p>
         </div>
         <div className="rounded-xl border border-border bg-bg-secondary p-5">
-          <p className="text-sm font-medium text-text-muted">Custom Link</p>
-          <p className="mt-1 truncate text-sm font-medium text-text-primary">
-            {config?.customLinkUrl || "Not configured"}
-          </p>
+          <p className="text-sm font-medium text-text-muted">Public Graph</p>
+          <div className="mt-1 flex items-center gap-2">
+            <div
+              className={`size-2.5 rounded-full ${config?.showGraph ? "bg-emerald-500" : "bg-text-muted/40"}`}
+            />
+            <span className="text-lg font-bold text-text-primary">
+              {config?.showGraph ? "Visible" : "Hidden"}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -64,10 +71,16 @@ export default async function AdminSurveyPage() {
                   customLinkUrl: config.customLinkUrl ?? "",
                   customLinkLabel: config.customLinkLabel ?? "",
                   showQrCode: config.showQrCode,
+                  showGraph: config.showGraph,
                 }
               : undefined
           }
         />
+      </div>
+
+      {/* Graph */}
+      <div className="rounded-xl border border-border bg-bg-secondary p-6">
+        <AdminSurveyGraph initialData={graphData} />
       </div>
 
       {/* Responses */}

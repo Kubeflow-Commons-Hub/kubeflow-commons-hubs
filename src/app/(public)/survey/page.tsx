@@ -2,6 +2,8 @@ import { getSurveyConfig } from "@/lib/survey/actions";
 import { redirect } from "next/navigation";
 import { SurveyForm } from "./survey-form";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Survey | Kubeflow Commons Hub",
   description: "Share your background and interests with the Kubeflow community.",
@@ -19,6 +21,7 @@ export default async function SurveyPage() {
       customLinkUrl={config.customLinkUrl}
       customLinkLabel={config.customLinkLabel}
       showQrCode={config.showQrCode}
+      showGraph={config.showGraph}
     />
   );
 }

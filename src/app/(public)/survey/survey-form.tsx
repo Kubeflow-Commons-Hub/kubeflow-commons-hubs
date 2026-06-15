@@ -22,6 +22,7 @@ import {
   Mail,
   GraduationCap,
   ExternalLink,
+  BarChart3,
 } from "lucide-react";
 
 const LS_KEY = "kf_survey_submitted";
@@ -48,12 +49,14 @@ interface SurveyFormProps {
   customLinkUrl?: string | null;
   customLinkLabel?: string | null;
   showQrCode?: boolean;
+  showGraph?: boolean;
 }
 
 export function SurveyForm({
   customLinkUrl,
   customLinkLabel,
   showQrCode = true,
+  showGraph = false,
 }: SurveyFormProps) {
   const [alreadySubmitted] = useState(() => getSubmission());
   const [step, setStep] = useState(0);
@@ -160,6 +163,15 @@ export function SurveyForm({
               >
                 Back to Home
               </Link>
+              {showGraph && (
+                <Link
+                  href="/survey/graph"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border px-6 py-3 text-sm font-semibold text-text-secondary transition-all hover:bg-bg-tertiary active:scale-[0.98]"
+                >
+                  <BarChart3 className="size-4 text-[var(--kf-blue)]" />
+                  View Community Graph
+                </Link>
+              )}
             </div>
 
             <div className="mt-6 border-t border-border pt-5">
@@ -236,6 +248,15 @@ export function SurveyForm({
             >
               Back to Home
             </Link>
+            {showGraph && (
+              <Link
+                href="/survey/graph"
+                className="mt-3 inline-flex items-center justify-center gap-2 rounded-2xl border border-border px-6 py-3 text-sm font-semibold text-text-secondary transition-all hover:bg-bg-tertiary active:scale-[0.98]"
+              >
+                <BarChart3 className="size-4 text-[var(--kf-blue)]" />
+                View Community Graph
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -254,6 +275,15 @@ export function SurveyForm({
             Tell us about yourself so we can connect you with the right
             opportunities in the Kubeflow community.
           </p>
+          {showGraph && (
+            <Link
+              href="/survey/graph"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-border bg-bg-secondary px-4 py-2 text-sm font-semibold text-text-secondary transition-all hover:bg-bg-tertiary active:scale-[0.98]"
+            >
+              <BarChart3 className="size-4 text-[var(--kf-blue)]" />
+              View Community Graph
+            </Link>
+          )}
         </div>
 
         {/* Progress steps */}

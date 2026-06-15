@@ -17,6 +17,7 @@ export const updateSurveyConfigSchema = z.object({
   customLinkUrl: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   customLinkLabel: z.string().max(200).optional().or(z.literal("")),
   showQrCode: z.boolean(),
+  showGraph: z.boolean(),
 });
 
 export type UpdateSurveyConfigInput = z.infer<typeof updateSurveyConfigSchema>;
