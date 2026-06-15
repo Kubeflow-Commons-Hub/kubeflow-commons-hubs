@@ -65,14 +65,13 @@ export async function getPublicSurveyGraphData(): Promise<{
     const rows = await db
       .select({
         name: surveyResponses.name,
-        email: surveyResponses.email,
         experienceValue: surveyResponses.experienceValue,
         awarenessScore: surveyResponses.awarenessScore,
       })
       .from(surveyResponses)
       .orderBy(desc(surveyResponses.createdAt));
 
-    return { data: rows };
+    return { data: rows.map((r) => ({ ...r, email: null })) };
   } catch {
     return { data: null, error: "Failed to load graph data" };
   }

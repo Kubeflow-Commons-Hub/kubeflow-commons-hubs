@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, RefreshCw, Search, X } from "lucide-react";
 import { QuadrantGraph } from "@/components/survey/quadrant-graph";
 import {
@@ -76,9 +76,17 @@ export function SurveyGraphView({
 }: SurveyGraphViewProps) {
   const [responses, setResponses] = useState(initialData);
   const [loading, setLoading] = useState(false);
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(new Date());
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      setLastUpdated(new Date());
+    }
+  }, []);
 
   const highlightedNames = useMemo(
     () => matchGraphSearch(responses, search),
@@ -187,13 +195,15 @@ export function SurveyGraphView({
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name or email to highlight on graph..."
+          placeholder="Search by name to highlight on graph..."
+          aria-label="Search participants"
           className="form-input w-full py-3 pl-11 pr-10"
         />
         {search && (
           <button
             type="button"
             onClick={() => setSearch("")}
+            aria-label="Clear search"
             className="absolute inset-y-0 right-0 flex items-center pr-4 text-text-muted transition-colors hover:text-text-primary"
           >
             <X className="size-4" />
