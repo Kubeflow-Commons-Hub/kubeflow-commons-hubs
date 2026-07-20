@@ -79,7 +79,7 @@ jobs:
 
       - name: Set up Node.js
         if: steps.check-paths.outputs.needs_review == 'true'
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 22
 
